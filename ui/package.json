@@ -1,0 +1,22 @@
+{
+  "name": "openclaw-control-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}

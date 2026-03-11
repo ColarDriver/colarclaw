@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openclaw-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openclaw-frontend
+  template:
+    metadata:
+      labels:
+        app: openclaw-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/openclaw/openclaw-frontend:latest
+          ports:
+            - containerPort: 80

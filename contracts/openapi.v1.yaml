@@ -1,0 +1,369 @@
+openapi: 3.1.0
+info:
+  title: OpenClaw Core Assistant API
+  version: v1
+servers:
+  - url: http://localhost:8788
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+  /v1/sessions:
+    get:
+      summary: List sessions
+      responses:
+        '200':
+          description: Session list
+    post:
+      summary: Create session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+      responses:
+        '200':
+          description: Created session
+  /v1/sessions/{session_id}:
+    get:
+      summary: Session detail
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session detail
+  /v1/tools:
+    get:
+      summary: List available tools
+      responses:
+        '200':
+          description: Tool catalog
+  /v1/settings:
+    get:
+      summary: Read runtime settings
+      responses:
+        '200':
+          description: Runtime settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    $ref: '#/components/schemas/SettingsView'
+    put:
+      summary: Update runtime settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequest'
+      responses:
+        '200':
+          description: Updated runtime settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    $ref: '#/components/schemas/SettingsView'
+  /v1/runtime:
+    get:
+      summary: Read runtime registries and discovered skills
+      responses:
+        '200':
+          description: Runtime registry view
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runtime:
+                    $ref: '#/components/schemas/RuntimeConfigView'
+    put:
+      summary: Update runtime registries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRuntimeConfigRequest'
+      responses:
+        '200':
+          description: Updated runtime registry view
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runtime:
+                    $ref: '#/components/schemas/RuntimeConfigView'
+  /v1/chat/runs:
+    post:
+      summary: Start a chat run (synchronous response)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRunRequest'
+      responses:
+        '200':
+          description: Chat run result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run:
+                    $ref: '#/components/schemas/ChatRunResponse'
+        '400':
+          description: Requested model is not registered
+  /v1/chat/runs/{run_id}/abort:
+    post:
+      summary: Abort a running chat run
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run aborted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run:
+                    type: object
+                    properties:
+                      runId:
+                        type: string
+                      status:
+                        type: string
+                        enum: [aborted]
+        '404':
+          description: Run not found
+  /v1/chat/runs/stream:
+    post:
+      summary: Start a chat run with NDJSON streaming
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRunRequest'
+      responses:
+        '200':
+          description: Streaming chat events
+        '400':
+          description: Requested model is not registered
+components:
+  schemas:
+    ChatRunRequest:
+      type: object
+      required: [sessionId, message]
+      properties:
+        sessionId:
+          type: string
+        message:
+          type: string
+        model:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        idempotencyKey:
+          type: string
+          description: Idempotency key scoped by sessionId.
+    ChatRunResponse:
+      type: object
+      required: [runId, sessionId, text, tools, retrievedContext, deduplicated]
+      properties:
+        runId:
+          type: string
+        sessionId:
+          type: string
+        text:
+          type: string
+        tools:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        retrievedContext:
+          type: array
+          items:
+            type: string
+        deduplicated:
+          type: boolean
+          description: True when request is skipped due to idempotency hit.
+    SettingsView:
+      type: object
+      required:
+        - defaultModel
+        - fallbackModels
+        - toolAllowlist
+        - toolDenylist
+        - maxToolCallsPerRun
+        - maxSameToolRepeat
+        - maxToolCallsPerMinute
+        - modelRegistry
+        - mcpServers
+        - skillsEnabled
+      properties:
+        defaultModel:
+          type: string
+        fallbackModels:
+          type: array
+          items:
+            type: string
+        toolAllowlist:
+          type: array
+          items:
+            type: string
+        toolDenylist:
+          type: array
+          items:
+            type: string
+        maxToolCallsPerRun:
+          type: integer
+        maxSameToolRepeat:
+          type: integer
+        maxToolCallsPerMinute:
+          type: integer
+        modelRegistry:
+          type: array
+          items:
+            type: string
+        mcpServers:
+          type: array
+          items:
+            type: string
+        skillsEnabled:
+          type: array
+          items:
+            type: string
+    UpdateSettingsRequest:
+      type: object
+      properties:
+        defaultModel:
+          type: string
+        fallbackModels:
+          type: array
+          items:
+            type: string
+        toolAllowlist:
+          type: array
+          items:
+            type: string
+        toolDenylist:
+          type: array
+          items:
+            type: string
+        maxToolCallsPerRun:
+          type: integer
+        maxSameToolRepeat:
+          type: integer
+        maxToolCallsPerMinute:
+          type: integer
+        modelRegistry:
+          type: array
+          items:
+            type: string
+        mcpServers:
+          type: array
+          items:
+            type: string
+        skillsEnabled:
+          type: array
+          items:
+            type: string
+    ModelItem:
+      type: object
+      required: [key, provider, id, name, reasoning]
+      properties:
+        key:
+          type: string
+        provider:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        reasoning:
+          type: boolean
+        contextWindow:
+          type: integer
+          nullable: true
+    McpServerItem:
+      type: object
+      required: [name, command, enabled]
+      properties:
+        name:
+          type: string
+        command:
+          type: string
+        enabled:
+          type: boolean
+    SkillItem:
+      type: object
+      required: [key, name, description]
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    RuntimeConfigView:
+      type: object
+      required: [modelRegistry, mcpServers, skillsEnabled, skillsAvailable]
+      properties:
+        modelRegistry:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelItem'
+        mcpServers:
+          type: array
+          items:
+            $ref: '#/components/schemas/McpServerItem'
+        skillsEnabled:
+          type: array
+          items:
+            type: string
+        skillsAvailable:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillItem'
+    UpdateRuntimeConfigRequest:
+      type: object
+      properties:
+        modelRegistry:
+          type: array
+          items:
+            type: string
+        mcpServers:
+          type: array
+          items:
+            type: string
+        skillsEnabled:
+          type: array
+          items:
+            type: string

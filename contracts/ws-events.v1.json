@@ -1,0 +1,89 @@
+{
+  "version": "v1",
+  "endpoint": "/v1/ws/chat",
+  "auth": {
+    "schemes": ["bearer_header", "query_token"],
+    "notes": "Pass bearer token in Authorization header, or token query parameter."
+  },
+  "clientMessageTypes": [
+    {
+      "type": "chat.send",
+      "payload": {
+        "sessionId": "string",
+        "message": "string",
+        "model": "string?",
+        "idempotencyKey": "string?"
+      }
+    },
+    {
+      "type": "chat.abort",
+      "payload": {
+        "runId": "string"
+      }
+    },
+    {
+      "type": "ping",
+      "payload": {}
+    }
+  ],
+  "serverEventTypes": [
+    {
+      "type": "event",
+      "event": "connect.ok",
+      "payload": {
+        "subject": "string",
+        "scopes": ["string"],
+        "connectedAtMs": "number",
+        "features": ["chat.send", "chat.abort", "ping"]
+      }
+    },
+    {
+      "type": "lifecycle",
+      "payload": {
+        "phase": "start|end|aborted|noop",
+        "runId": "string",
+        "sessionId": "string?"
+      }
+    },
+    {
+      "type": "delta",
+      "payload": {
+        "runId": "string",
+        "sessionId": "string",
+        "delta": "string",
+        "text": "string"
+      }
+    },
+    {
+      "type": "tool_end",
+      "payload": {
+        "runId": "string",
+        "sessionId": "string",
+        "name": "string",
+        "args": "object",
+        "result": "string"
+      }
+    },
+    {
+      "type": "final",
+      "payload": {
+        "runId": "string",
+        "sessionId": "string",
+        "text": "string",
+        "deduplicated": "boolean?"
+      }
+    },
+    {
+      "type": "error",
+      "payload": {
+        "message": "string",
+        "runId": "string?",
+        "sessionId": "string?"
+      }
+    },
+    {
+      "type": "pong",
+      "payload": {}
+    }
+  ]
+}

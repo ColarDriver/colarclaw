@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  backend:
+    image: python:3.12-slim
+    working_dir: /app
+    command: sh -c "pip install -r requirements.backend.txt && python src/main.py"
+    volumes:
+      - ..:/app
+    ports:
+      - "8788:8788"
+    environment:
+      OPENCLAW_ENV: dev
+      OPENCLAW_API_TOKEN: openclaw-dev-token
+      OPENCLAW_DATABASE_URL: sqlite+aiosqlite:///./openclaw.db
+      OPENCLAW_REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - redis
+  frontend:
+    image: node:22
+    working_dir: /app/ui
+    command: sh -c "pnpm install && pnpm dev --host"
+    volumes:
+      - ..:/app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"

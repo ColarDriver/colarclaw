@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openclaw-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openclaw-backend
+  template:
+    metadata:
+      labels:
+        app: openclaw-backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/openclaw/openclaw-backend:latest
+          ports:
+            - containerPort: 8788
+          env:
+            - name: OPENCLAW_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: api-token

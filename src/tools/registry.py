@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from functools import partial
 
-from core.config import Settings
-from memory.memory_tool import memory_get_tool, memory_search_tool
-from tools.builtins import tool_clock_now, tool_echo_text
-from tools.models import ToolDefinition
+from ..core.config import Settings
+from ..memory.memory_tool import memory_get_tool, memory_search_tool
+from .builtins import tool_clock_now, tool_echo_text
+from .models import ToolDefinition
 
 
 class ToolRegistry:

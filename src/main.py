@@ -3,16 +3,16 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.rest.chat import router as chat_router
-from api.rest.health import router as health_router
-from api.rest.runtime_config import router as runtime_router
-from api.rest.sessions import router as sessions_router
-from api.rest.settings import router as settings_router
-from api.rest.tools import router as tools_router
-from api.ws.chat_stream import router as ws_router
-from container import build_container
-from core.config import load_settings
-from core.logging import configure_logging
+from .api.rest.chat import router as chat_router
+from .api.rest.health import router as health_router
+from .api.rest.runtime_config import router as runtime_router
+from .api.rest.sessions import router as sessions_router
+from .api.rest.settings import router as settings_router
+from .api.rest.tools import router as tools_router
+from .api.ws.chat_stream import router as ws_router
+from .container import build_container
+from .core.config import load_settings
+from .core.logging import configure_logging
 
 
 def create_app() -> FastAPI:
@@ -40,4 +40,16 @@ def create_app() -> FastAPI:
     return app
 
 
-app = create_app()
+app: FastAPI | None = None
+
+
+def get_app() -> FastAPI:
+    global app
+    if app is None:
+        app = create_app()
+    return app
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(get_app(), host="0.0.0.0", port=8000)

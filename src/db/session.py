@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from core.config import Settings
+from ..core.config import Settings
 
 
 def create_session_factory(settings: Settings) -> async_sessionmaker[AsyncSession]:

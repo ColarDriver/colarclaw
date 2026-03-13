@@ -1,5 +1,5 @@
 """Tools package."""
-from tools.catalog import (
+from .catalog import (
     CORE_TOOL_DEFINITIONS,
     CORE_TOOL_GROUPS,
     CoreToolDefinition,
@@ -9,7 +9,7 @@ from tools.catalog import (
     resolve_core_tool_profile_policy,
     resolve_core_tool_profiles,
 )
-from tools.loop_detection import (
+from .loop_detection import (
     LoopDetectionConfig,
     LoopDetectionResult,
     ToolCallHistoryState,
@@ -18,10 +18,10 @@ from tools.loop_detection import (
     record_tool_call,
     record_tool_call_outcome,
 )
-from tools.models import ToolDefinition, ToolRunner
-from tools.policy import ToolPolicyConfig, ToolPolicyPipeline, ToolRateLimiter
-from tools.registry import ToolRegistry, create_default_registry
-from tools.tool_policy_shared import (
+from .models import ToolDefinition, ToolRunner
+from .policy import ToolPolicyConfig, ToolPolicyPipeline, ToolRateLimiter
+from .registry import ToolRegistry, create_default_registry
+from .tool_policy_shared import (
     expand_tool_groups,
     normalize_tool_list,
     normalize_tool_name,

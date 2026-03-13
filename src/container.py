@@ -3,22 +3,22 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.config import Settings
-from graph.main_graph import GraphOrchestrator
-from llm.router import LlmRouter
-from mcp.registry import McpRegistry, parse_mcp_servers
-from memory.manager import SessionMemoryRecord
-from memory.retriever import MemoryRetriever
-from memory.search_manager import get_memory_search_manager
-from memory.store import MemoryStore
-from models.registry import ModelRegistry, parse_registered_model_entries
-from observability.audit import AuditLogger
-from observability.metrics import InMemoryMetrics
-from session.repository import InMemorySessionRepository, SessionRepository
-from session.runtime import SessionRuntimeState
-from skills.catalog import SkillCatalog
-from tools.middleware import ToolRuntime
-from tools.registry import ToolRegistry, create_default_registry
+from .core.config import Settings
+from .graph.main_graph import GraphOrchestrator
+from .llm.router import LlmRouter
+from .mcp.registry import McpRegistry, parse_mcp_servers
+from .memory.manager import SessionMemoryRecord
+from .memory.retriever import MemoryRetriever
+from .memory.search_manager import get_memory_search_manager
+from .memory.store import MemoryStore
+from .models.registry import ModelRegistry, parse_registered_model_entries
+from .observability.audit import AuditLogger
+from .observability.metrics import InMemoryMetrics
+from .session.repository import InMemorySessionRepository, SessionRepository
+from .session.runtime import SessionRuntimeState
+from .skills.catalog import SkillCatalog
+from .tools.middleware import ToolRuntime
+from .tools.registry import ToolRegistry, create_default_registry
 
 
 @dataclass
@@ -108,14 +108,24 @@ def build_container(settings: Settings) -> Container:
                     )
         return rows
 
-    resolved_manager = get_memory_search_manager(
-        settings=settings,
-        runtime_config=runtime_config,
-        session_records_provider=_session_records,
-    )
-    if resolved_manager.manager is None:
-        raise RuntimeError(resolved_manager.error or "failed to initialize memory manager")
-    memory_manager = resolved_manager.manager
+    try:
+        resolved_manager = get_memory_search_manager(
+            settings=settings,
+            runtime_config=runtime_config,
+            session_records_provider=_session_records,
+        )
+        if resolved_manager.manager is None:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"Memory manager init failed: {resolved_manager.error}. Running with memory disabled."
+            )
+            memory_manager = None
+        else:
+            memory_manager = resolved_manager.manager
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Memory manager init error: {e}. Running with memory disabled.")
+        memory_manager = None
 
     session_runtime = SessionRuntimeState(idempotency_ttl_ms=15 * 60 * 1000)
     memory_store = MemoryStore(session_repo, memory_manager)

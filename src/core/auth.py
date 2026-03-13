@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.websockets import WebSocket
 
-from core.config import Settings, load_settings
+from .config import Settings, load_settings
 
 try:
     import jwt

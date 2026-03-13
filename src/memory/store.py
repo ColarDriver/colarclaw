@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from memory.manager import MemoryIndexManager
-from session.repository import SessionRepository
+from .manager import MemoryIndexManager
+from ..session.repository import SessionRepository
 
 
 class MemoryStore:

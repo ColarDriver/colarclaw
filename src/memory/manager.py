@@ -11,15 +11,15 @@ from typing import Callable, Sequence
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-from memory.config import MemorySearchConfig
-from memory.hybrid import (
+from .config import MemorySearchConfig
+from .hybrid import (
     HybridKeywordResult,
     HybridVectorResult,
     bm25_rank_to_score,
     build_fts_query,
     merge_hybrid_results,
 )
-from memory.internal import (
+from .internal import (
     MemoryFileEntry,
     build_file_entry,
     build_session_entry,
@@ -31,9 +31,9 @@ from memory.internal import (
     normalize_rel_path,
     parse_embedding,
 )
-from memory.mmr import MmrConfig, apply_mmr_to_results
-from memory.temporal_decay import TemporalDecayConfig, apply_temporal_decay
-from memory.types import (
+from .mmr import MmrConfig, apply_mmr_to_results
+from .temporal_decay import TemporalDecayConfig, apply_temporal_decay
+from .types import (
     MemoryEmbeddingProbeResult,
     MemoryProviderStatus,
     MemorySearchResult,

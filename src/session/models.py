@@ -6,7 +6,7 @@ import uuid
 from sqlalchemy import BigInteger, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.base import Base
+from ..db.base import Base
 
 
 def _utc_ms() -> int:

@@ -1,17 +1,17 @@
 """Session package."""
-from session.repository import (
+from .repository import (
     InMemorySessionRepository,
     SessionRepository,
     SqlSessionRepository,
 )
-from session.runtime import SessionRuntimeState
-from session.write_lock import (
+from .runtime import SessionRuntimeState
+from .write_lock import (
     SessionLockInspection,
     acquire_session_write_lock,
     clean_stale_lock_files,
     resolve_session_lock_max_hold_from_timeout,
 )
-from session.transcript_repair import (
+from .transcript_repair import (
     ToolCallInputRepairReport,
     ToolUseRepairReport,
     make_missing_tool_result,

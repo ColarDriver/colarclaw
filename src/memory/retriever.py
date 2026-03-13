@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from memory.manager import MemoryIndexManager
-from memory.types import MemorySearchResult
+from .manager import MemoryIndexManager
+from .types import MemorySearchResult
 
 
 class MemoryRetriever:

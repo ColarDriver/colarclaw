@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from api.deps import get_auth_context, get_container
+from ..deps import get_auth_context, get_container
 
 router = APIRouter(prefix="/v1/tools", tags=["tools"])
 

@@ -17,8 +17,8 @@ from typing import AsyncIterator
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
-from api.deps import get_auth_context, get_container
-from schemas.chat import ChatRunRequest, ChatRunResponse, RetrievedContextItem
+from ..deps import get_auth_context, get_container
+from ...schemas.chat import ChatRunRequest, ChatRunResponse, RetrievedContextItem
 
 router = APIRouter(prefix="/v1/chat", tags=["chat"])
 

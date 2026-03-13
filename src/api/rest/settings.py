@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from api.deps import get_auth_context, get_container
-from graph.main_graph import GraphOrchestrator
-from mcp.registry import parse_mcp_servers
-from memory.manager import SessionMemoryRecord
-from memory.retriever import MemoryRetriever
-from memory.search_manager import get_memory_search_manager
-from memory.store import MemoryStore
-from models.registry import parse_registered_model_entries
-from schemas.settings import SettingsView, UpdateSettingsRequest
-from tools.registry import create_default_registry
+from ..deps import get_auth_context, get_container
+from ...graph.main_graph import GraphOrchestrator
+from ...mcp.registry import parse_mcp_servers
+from ...memory.manager import SessionMemoryRecord
+from ...memory.retriever import MemoryRetriever
+from ...memory.search_manager import get_memory_search_manager
+from ...memory.store import MemoryStore
+from ...models.registry import parse_registered_model_entries
+from ...schemas.settings import SettingsView, UpdateSettingsRequest
+from ...tools.registry import create_default_registry
 
 router = APIRouter(prefix="/v1/settings", tags=["settings"])
 

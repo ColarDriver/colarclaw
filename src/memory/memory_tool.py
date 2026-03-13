@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 
-from core.config import Settings
-from memory.search_manager import get_memory_search_manager
+from ..core.config import Settings
+from .search_manager import get_memory_search_manager
 
 
 def memory_search_tool(

@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from core.config import Settings
+from ..core.config import Settings
 
-from memory.types import MemorySource
+from .types import MemorySource
 
 
 def _parse_bool(value: object, default: bool) -> bool:

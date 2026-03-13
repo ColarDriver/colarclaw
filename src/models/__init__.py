@@ -1,5 +1,5 @@
 """Models package."""
-from models.catalog import (
+from .catalog import (
     ModelCatalogEntry,
     ModelInputType,
     find_model_in_catalog,
@@ -8,12 +8,12 @@ from models.catalog import (
     model_supports_vision,
     reset_model_catalog_cache,
 )
-from models.compat import (
+from .compat import (
     ModelCompat,
     ModelSpec,
     normalize_model_compat,
 )
-from models.registry import (
+from .registry import (
     ModelRef,
     ModelRegistry,
     RegisteredModel,

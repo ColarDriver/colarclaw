@@ -17,18 +17,18 @@ import logging
 from dataclasses import asdict
 from typing import Any, AsyncIterator
 
-from agents.system_prompt import (
+from ..agents.system_prompt import (
     ContextFile,
     RuntimeInfo,
     build_agent_system_prompt,
 )
-from graph.state import GraphState, ToolEvent
-from llm.router import LlmRouter
-from memory.retriever import MemoryRetriever
-from memory.store import MemoryStore
-from memory.types import MemorySearchResult
-from skills.catalog import SkillCatalog
-from tools.middleware import ToolRuntime
+from .state import GraphState, ToolEvent
+from ..llm.router import LlmRouter
+from ..memory.retriever import MemoryRetriever
+from ..memory.store import MemoryStore
+from ..memory.types import MemorySearchResult
+from ..skills.catalog import SkillCatalog
+from ..tools.middleware import ToolRuntime
 
 logger = logging.getLogger("openclaw.graph")
 

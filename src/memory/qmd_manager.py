@@ -6,7 +6,7 @@ import math
 import subprocess
 from typing import Callable
 
-from memory.types import (
+from .types import (
     MemoryEmbeddingProbeResult,
     MemoryProviderStatus,
     MemorySearchResult,

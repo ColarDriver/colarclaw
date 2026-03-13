@@ -15,7 +15,7 @@ from agents.session_tool_result_state import (
     create_pending_tool_call_state,
 )
 from agents.tool_call_id import extract_tool_calls_from_assistant, extract_tool_result_id
-from session.transcript_repair import make_missing_tool_result, sanitize_tool_call_inputs
+from ...session.transcript_repair import make_missing_tool_result, sanitize_tool_call_inputs
 
 log = logging.getLogger("openclaw.agents.session_tool_result_guard")
 

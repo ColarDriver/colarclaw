@@ -4,9 +4,9 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any
 
-from observability.audit import AuditLogger
-from tools.policy import ToolPolicyConfig, ToolPolicyPipeline, ToolPolicyRunState, ToolRateLimiter
-from tools.registry import ToolRegistry
+from ..observability.audit import AuditLogger
+from .policy import ToolPolicyConfig, ToolPolicyPipeline, ToolPolicyRunState, ToolRateLimiter
+from .registry import ToolRegistry
 
 
 @dataclass(frozen=True)

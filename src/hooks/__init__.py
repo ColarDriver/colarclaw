@@ -1,5 +1,5 @@
 """Hooks package."""
-from hooks.engine import (
+from .engine import (
     HookEvent,
     HookEventType,
     HookHandler,
@@ -10,7 +10,7 @@ from hooks.engine import (
     trigger_hook,
     unregister_hook,
 )
-from hooks.types import (
+from .types import (
     Hook,
     HookEntry,
     HookInstallSpec,

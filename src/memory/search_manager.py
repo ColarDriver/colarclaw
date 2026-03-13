@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.config import Settings
-from memory.config import resolve_memory_search_config
-from memory.manager import MemoryIndexManager
-from memory.qmd_manager import QmdConfig, QmdMemoryManager
-from memory.types import (
+from ..core.config import Settings
+from .config import resolve_memory_search_config
+from .manager import MemoryIndexManager
+from .qmd_manager import QmdConfig, QmdMemoryManager
+from .types import (
     MemoryEmbeddingProbeResult,
     MemoryProviderStatus,
     MemorySearchResult,

@@ -6,8 +6,8 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
-from core.auth import resolve_websocket_auth
-from core.config import load_settings
+from ...core.auth import resolve_websocket_auth
+from ...core.config import load_settings
 
 router = APIRouter(tags=["ws"])
 

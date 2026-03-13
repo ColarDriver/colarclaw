@@ -11,8 +11,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from models.registry import ModelRegistry
-from llm.providers import resolve_provider, EchoProvider
+from ..models.registry import ModelRegistry
+from .providers import resolve_provider, EchoProvider
 
 logger = logging.getLogger("openclaw.llm.router")
 

@@ -1,0 +1,22 @@
+# OpenClaw Python Backend Dependencies
+# Core framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+
+# Async HTTP
+aiohttp>=3.9.0
+httpx>=0.25.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# AI / LLM
+langgraph>=0.0.30
+
+# Auth
+PyJWT>=2.8.0
+
+# Utilities
+python-magic>=0.4.27
+zeroconf>=0.127.0

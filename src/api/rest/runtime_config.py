@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from api.deps import get_auth_context, get_container
-from mcp.registry import parse_mcp_servers
-from models.registry import parse_registered_model_entries
-from schemas.runtime_config import (
+from ..deps import get_auth_context, get_container
+from ...mcp.registry import parse_mcp_servers
+from ...models.registry import parse_registered_model_entries
+from ...schemas.runtime_config import (
     McpServerItem,
     ModelItem,
     RuntimeConfigView,

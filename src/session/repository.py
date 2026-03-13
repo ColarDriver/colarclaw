@@ -8,7 +8,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from session.models import MessageModel, SessionModel
+from .models import MessageModel, SessionModel
 
 
 def _utc_ms() -> int:

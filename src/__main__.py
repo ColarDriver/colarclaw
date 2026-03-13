@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uvicorn
 
-from core.config import load_settings
+from .core.config import load_settings
 
 
 def main() -> None:

@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from tools.catalog import CORE_TOOL_GROUPS, resolve_core_tool_profile_policy
+from .catalog import CORE_TOOL_GROUPS, resolve_core_tool_profile_policy
 
 # ── Tool name aliases ──────────────────────────────────────────────────────
 

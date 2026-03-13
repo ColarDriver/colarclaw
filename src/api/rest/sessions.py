@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from api.deps import get_auth_context, get_container
-from schemas.sessions import CreateSessionRequest, MessageView, SessionDetailView, SessionView
+from ..deps import get_auth_context, get_container
+from ...schemas.sessions import CreateSessionRequest, MessageView, SessionDetailView, SessionView
 
 router = APIRouter(prefix="/v1/sessions", tags=["sessions"])
 

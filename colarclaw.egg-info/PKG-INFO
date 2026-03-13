@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: colarclaw
+Version: 2025.3.12
+Summary: OpenClaw Python Backend — AI assistant gateway
+Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: fastapi>=0.104.0
+Requires-Dist: uvicorn>=0.24.0
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: aiohttp>=3.9.0
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: sqlalchemy>=2.0.0
+Requires-Dist: langgraph>=0.0.30
+Requires-Dist: PyJWT>=2.8.0
+Requires-Dist: watchdog>=6.0.0
+Provides-Extra: dev
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Dynamic: license-file

@@ -10,7 +10,7 @@ python3 -m uv pip install --python .venv/bin/python -r requirements.backend.txt
 ## Run
 
 ```bash
-PYTHONPATH=src python3 -m uv run --python .venv/bin/python python src/main.py
+python3 -m uv run --python .venv/bin/python python main.py
 ```
 
 ## Test

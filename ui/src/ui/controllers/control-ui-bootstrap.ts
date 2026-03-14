@@ -1,9 +1,7 @@
-import {
-  CONTROL_UI_BOOTSTRAP_CONFIG_PATH,
-  type ControlUiBootstrapConfig,
-} from "../../../../src/gateway/control-ui-contract.js";
 import { normalizeAssistantIdentity } from "../assistant-identity.ts";
+import type { ControlUiBootstrapConfig } from "../compat/gateway/control-ui-contract.js";
 import { normalizeBasePath } from "../navigation.ts";
+import { getControlUiBootstrapConfigPath } from "../runtime-contracts.ts";
 
 export type ControlUiBootstrapState = {
   basePath: string;
@@ -22,9 +20,8 @@ export async function loadControlUiBootstrapConfig(state: ControlUiBootstrapStat
   }
 
   const basePath = normalizeBasePath(state.basePath ?? "");
-  const url = basePath
-    ? `${basePath}${CONTROL_UI_BOOTSTRAP_CONFIG_PATH}`
-    : CONTROL_UI_BOOTSTRAP_CONFIG_PATH;
+  const bootstrapConfigPath = getControlUiBootstrapConfigPath();
+  const url = basePath ? `${basePath}${bootstrapConfigPath}` : bootstrapConfigPath;
 
   try {
     const res = await fetch(url, {

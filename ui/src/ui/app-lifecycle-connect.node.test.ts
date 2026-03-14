@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { applySettingsFromUrlMock, connectGatewayMock, loadBootstrapMock } = vi.hoisted(() => ({
-  applySettingsFromUrlMock: vi.fn(),
-  connectGatewayMock: vi.fn(),
-  loadBootstrapMock: vi.fn(),
-}));
+const { applySettingsFromUrlMock, connectGatewayMock, loadBootstrapMock, loadContractsMock } =
+  vi.hoisted(() => ({
+    applySettingsFromUrlMock: vi.fn(),
+    connectGatewayMock: vi.fn(),
+    loadBootstrapMock: vi.fn(),
+    loadContractsMock: vi.fn(),
+  }));
 
 vi.mock("./app-gateway.ts", () => ({
   connectGateway: connectGatewayMock,
@@ -12,6 +14,10 @@ vi.mock("./app-gateway.ts", () => ({
 
 vi.mock("./controllers/control-ui-bootstrap.ts", () => ({
   loadControlUiBootstrapConfig: loadBootstrapMock,
+}));
+
+vi.mock("./runtime-contracts.ts", () => ({
+  loadUiRuntimeContracts: loadContractsMock,
 }));
 
 vi.mock("./app-settings.ts", () => ({
@@ -70,6 +76,8 @@ describe("handleConnected", () => {
     applySettingsFromUrlMock.mockReset();
     connectGatewayMock.mockReset();
     loadBootstrapMock.mockReset();
+    loadContractsMock.mockReset();
+    loadContractsMock.mockResolvedValue(undefined);
   });
 
   it("waits for bootstrap load before first gateway connect", async () => {
@@ -86,7 +94,7 @@ describe("handleConnected", () => {
     expect(connectGatewayMock).not.toHaveBeenCalled();
 
     resolveBootstrap();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(connectGatewayMock).toHaveBeenCalledTimes(1);
   });
 
@@ -105,20 +113,25 @@ describe("handleConnected", () => {
 
     host.connectGeneration += 1;
     resolveBootstrap();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(connectGatewayMock).not.toHaveBeenCalled();
   });
 
-  it("scrubs URL settings before starting the bootstrap fetch", () => {
+  it("scrubs URL settings before starting the bootstrap fetch", async () => {
     loadBootstrapMock.mockResolvedValueOnce(undefined);
     const host = createHost();
 
     handleConnected(host as never);
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(applySettingsFromUrlMock).toHaveBeenCalledTimes(1);
+    expect(loadContractsMock).toHaveBeenCalledTimes(1);
     expect(loadBootstrapMock).toHaveBeenCalledTimes(1);
     expect(applySettingsFromUrlMock.mock.invocationCallOrder[0]).toBeLessThan(
+      loadContractsMock.mock.invocationCallOrder[0],
+    );
+    expect(loadContractsMock.mock.invocationCallOrder[0]).toBeLessThan(
       loadBootstrapMock.mock.invocationCallOrder[0],
     );
   });

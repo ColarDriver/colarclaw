@@ -9,6 +9,7 @@ from .api.rest.runtime_config import router as runtime_router
 from .api.rest.sessions import router as sessions_router
 from .api.rest.settings import router as settings_router
 from .api.rest.tools import router as tools_router
+from .api.rest.ui_contracts import router as ui_contracts_router
 from .api.ws.chat_stream import router as ws_router
 from .container import build_container
 from .core.config import load_settings
@@ -36,6 +37,7 @@ def create_app() -> FastAPI:
     app.include_router(tools_router)
     app.include_router(settings_router)
     app.include_router(runtime_router)
+    app.include_router(ui_contracts_router)
     app.include_router(ws_router)
     return app
 

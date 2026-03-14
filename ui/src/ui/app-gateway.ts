@@ -1,8 +1,3 @@
-import {
-  GATEWAY_EVENT_UPDATE_AVAILABLE,
-  type GatewayUpdateAvailableEventPayload,
-} from "../../../src/gateway/events.js";
-import { ConnectErrorDetailCodes } from "../../../src/gateway/protocol/connect-error-details.js";
 import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat.ts";
 import type { EventLogEntry } from "./app-events.ts";
 import {
@@ -14,6 +9,7 @@ import {
 import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream.ts";
 import type { OpenClawApp } from "./app.ts";
 import { shouldReloadHistoryForFinalEvent } from "./chat-event-reload.ts";
+import type { GatewayUpdateAvailableEventPayload } from "./compat/gateway/events.js";
 import { loadAgents } from "./controllers/agents.ts";
 import { loadAssistantIdentity } from "./controllers/assistant-identity.ts";
 import { loadChatHistory } from "./controllers/chat.ts";
@@ -36,6 +32,12 @@ import {
 } from "./gateway.ts";
 import { GatewayBrowserClient } from "./gateway.ts";
 import type { Tab } from "./navigation.ts";
+import {
+  getConnectErrorCode,
+  getGatewayClientModeWebchat,
+  getGatewayClientNameControlUi,
+  getGatewayEventUpdateAvailable,
+} from "./runtime-contracts.ts";
 import type { UiSettings } from "./storage.ts";
 import type {
   AgentsListResult,
@@ -51,13 +53,13 @@ function isGenericBrowserFetchFailure(message: string): boolean {
 
 function formatAuthCloseErrorMessage(code: string | null, fallback: string): string {
   const resolvedCode = code ?? "";
-  if (resolvedCode === ConnectErrorDetailCodes.AUTH_TOKEN_MISMATCH) {
+  if (resolvedCode === getConnectErrorCode("AUTH_TOKEN_MISMATCH")) {
     return "unauthorized: gateway token mismatch (open dashboard URL with current token)";
   }
-  if (resolvedCode === ConnectErrorDetailCodes.AUTH_RATE_LIMITED) {
+  if (resolvedCode === getConnectErrorCode("AUTH_RATE_LIMITED")) {
     return "unauthorized: too many failed authentication attempts (retry later)";
   }
-  if (resolvedCode === ConnectErrorDetailCodes.AUTH_UNAUTHORIZED) {
+  if (resolvedCode === getConnectErrorCode("AUTH_UNAUTHORIZED")) {
     return "unauthorized: authentication failed";
   }
   return fallback;
@@ -201,9 +203,9 @@ export function connectGateway(host: GatewayHost) {
     url: host.settings.gatewayUrl,
     token: host.settings.token.trim() ? host.settings.token : undefined,
     password: host.password.trim() ? host.password : undefined,
-    clientName: "openclaw-control-ui",
+    clientName: getGatewayClientNameControlUi(),
     clientVersion,
-    mode: "webchat",
+    mode: getGatewayClientModeWebchat(),
     instanceId: host.clientInstanceId,
     onHello: (hello) => {
       if (host.client !== client) {
@@ -397,7 +399,7 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
     return;
   }
 
-  if (evt.event === GATEWAY_EVENT_UPDATE_AVAILABLE) {
+  if (evt.event === getGatewayEventUpdateAvailable()) {
     const payload = evt.payload as GatewayUpdateAvailableEventPayload | undefined;
     host.updateAvailable = payload?.updateAvailable ?? null;
   }

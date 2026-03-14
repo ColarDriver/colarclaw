@@ -1,30 +1,40 @@
-import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
+import { getConnectErrorCode, type ConnectErrorDetailCodeName } from "../runtime-contracts.ts";
 
-const AUTH_REQUIRED_CODES = new Set<string>([
-  ConnectErrorDetailCodes.AUTH_REQUIRED,
-  ConnectErrorDetailCodes.AUTH_TOKEN_MISSING,
-  ConnectErrorDetailCodes.AUTH_PASSWORD_MISSING,
-  ConnectErrorDetailCodes.AUTH_TOKEN_NOT_CONFIGURED,
-  ConnectErrorDetailCodes.AUTH_PASSWORD_NOT_CONFIGURED,
-]);
+const AUTH_REQUIRED_CODE_NAMES: ConnectErrorDetailCodeName[] = [
+  "AUTH_REQUIRED",
+  "AUTH_TOKEN_MISSING",
+  "AUTH_PASSWORD_MISSING",
+  "AUTH_TOKEN_NOT_CONFIGURED",
+  "AUTH_PASSWORD_NOT_CONFIGURED",
+];
 
-const AUTH_FAILURE_CODES = new Set<string>([
-  ...AUTH_REQUIRED_CODES,
-  ConnectErrorDetailCodes.AUTH_UNAUTHORIZED,
-  ConnectErrorDetailCodes.AUTH_TOKEN_MISMATCH,
-  ConnectErrorDetailCodes.AUTH_PASSWORD_MISMATCH,
-  ConnectErrorDetailCodes.AUTH_DEVICE_TOKEN_MISMATCH,
-  ConnectErrorDetailCodes.AUTH_RATE_LIMITED,
-  ConnectErrorDetailCodes.AUTH_TAILSCALE_IDENTITY_MISSING,
-  ConnectErrorDetailCodes.AUTH_TAILSCALE_PROXY_MISSING,
-  ConnectErrorDetailCodes.AUTH_TAILSCALE_WHOIS_FAILED,
-  ConnectErrorDetailCodes.AUTH_TAILSCALE_IDENTITY_MISMATCH,
-]);
+const AUTH_FAILURE_CODE_NAMES: ConnectErrorDetailCodeName[] = [
+  ...AUTH_REQUIRED_CODE_NAMES,
+  "AUTH_UNAUTHORIZED",
+  "AUTH_TOKEN_MISMATCH",
+  "AUTH_PASSWORD_MISMATCH",
+  "AUTH_DEVICE_TOKEN_MISMATCH",
+  "AUTH_RATE_LIMITED",
+  "AUTH_TAILSCALE_IDENTITY_MISSING",
+  "AUTH_TAILSCALE_PROXY_MISSING",
+  "AUTH_TAILSCALE_WHOIS_FAILED",
+  "AUTH_TAILSCALE_IDENTITY_MISMATCH",
+];
 
-const INSECURE_CONTEXT_CODES = new Set<string>([
-  ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED,
-  ConnectErrorDetailCodes.DEVICE_IDENTITY_REQUIRED,
-]);
+const INSECURE_CONTEXT_CODE_NAMES: ConnectErrorDetailCodeName[] = [
+  "CONTROL_UI_DEVICE_IDENTITY_REQUIRED",
+  "DEVICE_IDENTITY_REQUIRED",
+];
+
+function matchesErrorCode(
+  lastErrorCode: string | null | undefined,
+  names: readonly ConnectErrorDetailCodeName[],
+): boolean {
+  if (!lastErrorCode) {
+    return false;
+  }
+  return names.some((name) => lastErrorCode === getConnectErrorCode(name));
+}
 
 /** Whether the overview should show device-pairing guidance for this error. */
 export function shouldShowPairingHint(
@@ -35,7 +45,7 @@ export function shouldShowPairingHint(
   if (connected || !lastError) {
     return false;
   }
-  if (lastErrorCode === ConnectErrorDetailCodes.PAIRING_REQUIRED) {
+  if (lastErrorCode === getConnectErrorCode("PAIRING_REQUIRED")) {
     return true;
   }
   return lastError.toLowerCase().includes("pairing required");
@@ -49,8 +59,8 @@ export function shouldShowAuthHint(
   if (connected || !lastError) {
     return false;
   }
-  if (lastErrorCode) {
-    return AUTH_FAILURE_CODES.has(lastErrorCode);
+  if (matchesErrorCode(lastErrorCode, AUTH_FAILURE_CODE_NAMES)) {
+    return true;
   }
   const lower = lastError.toLowerCase();
   return lower.includes("unauthorized") || lower.includes("connect failed");
@@ -61,8 +71,8 @@ export function shouldShowAuthRequiredHint(
   hasPassword: boolean,
   lastErrorCode?: string | null,
 ): boolean {
-  if (lastErrorCode) {
-    return AUTH_REQUIRED_CODES.has(lastErrorCode);
+  if (matchesErrorCode(lastErrorCode, AUTH_REQUIRED_CODE_NAMES)) {
+    return true;
   }
   return !hasToken && !hasPassword;
 }
@@ -75,8 +85,8 @@ export function shouldShowInsecureContextHint(
   if (connected || !lastError) {
     return false;
   }
-  if (lastErrorCode) {
-    return INSECURE_CONTEXT_CODES.has(lastErrorCode);
+  if (matchesErrorCode(lastErrorCode, INSECURE_CONTEXT_CODE_NAMES)) {
+    return true;
   }
   const lower = lastError.toLowerCase();
   return lower.includes("secure context") || lower.includes("device identity required");

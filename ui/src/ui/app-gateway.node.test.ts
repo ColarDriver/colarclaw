@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GATEWAY_EVENT_UPDATE_AVAILABLE } from "../../../src/gateway/events.js";
-import { ConnectErrorDetailCodes } from "../../../src/gateway/protocol/connect-error-details.js";
 import { connectGateway, resolveControlUiClientVersion } from "./app-gateway.ts";
+import { GATEWAY_EVENT_UPDATE_AVAILABLE } from "./compat/gateway/events.js";
+import { ConnectErrorDetailCodes } from "./compat/gateway/protocol/connect-error-details.js";
 
 type GatewayClientMock = {
   start: ReturnType<typeof vi.fn>;

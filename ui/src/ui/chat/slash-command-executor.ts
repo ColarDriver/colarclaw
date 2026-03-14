@@ -3,21 +3,25 @@
  * Calls gateway RPC methods and returns formatted results.
  */
 
-import type { ModelCatalogEntry } from "../../../../src/agents/model-catalog.js";
 import {
   formatThinkingLevels,
   normalizeThinkLevel,
   normalizeVerboseLevel,
   resolveThinkingDefaultForModel,
-} from "../../../../src/auto-reply/thinking.js";
+} from "../compat/auto-reply/thinking.js";
 import {
   DEFAULT_AGENT_ID,
   DEFAULT_MAIN_KEY,
   isSubagentSessionKey,
   parseAgentSessionKey,
-} from "../../../../src/routing/session-key.js";
+} from "../compat/routing/session-key.js";
 import type { GatewayBrowserClient } from "../gateway.ts";
-import type { AgentsListResult, GatewaySessionRow, SessionsListResult } from "../types.ts";
+import type {
+  AgentsListResult,
+  GatewaySessionRow,
+  ModelCatalogEntry,
+  SessionsListResult,
+} from "../types.ts";
 import { SLASH_COMMANDS } from "./slash-commands.ts";
 
 export type SlashCommandResult = {

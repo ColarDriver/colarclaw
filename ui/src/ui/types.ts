@@ -1,12 +1,12 @@
-export type UpdateAvailable = import("../../../src/infra/update-startup.js").UpdateAvailable;
-import type { CronJobBase } from "../../../src/cron/types-shared.js";
-import type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
+export type UpdateAvailable = import("./compat/infra/update-startup.js").UpdateAvailable;
+import type { CronJobBase } from "./compat/cron/types-shared.js";
+import type { ConfigUiHints } from "./compat/shared/config-ui-hints-types.js";
 import type {
   GatewayAgentRow as SharedGatewayAgentRow,
   SessionsListResultBase,
   SessionsPatchResultBase,
-} from "../../../src/shared/session-types.js";
-export type { ConfigUiHint, ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
+} from "./compat/shared/session-types.js";
+export type { ConfigUiHint, ConfigUiHints } from "./compat/shared/config-ui-hints-types.js";
 
 export type ChannelsStatusSnapshot = {
   ts: number;
@@ -633,13 +633,11 @@ export type ModelCatalogEntry = {
 };
 
 export type ToolCatalogProfile =
-  import("../../../src/gateway/protocol/schema/types.js").ToolCatalogProfile;
-export type ToolCatalogEntry =
-  import("../../../src/gateway/protocol/schema/types.js").ToolCatalogEntry;
-export type ToolCatalogGroup =
-  import("../../../src/gateway/protocol/schema/types.js").ToolCatalogGroup;
+  import("./compat/gateway/protocol/schema/types.js").ToolCatalogProfile;
+export type ToolCatalogEntry = import("./compat/gateway/protocol/schema/types.js").ToolCatalogEntry;
+export type ToolCatalogGroup = import("./compat/gateway/protocol/schema/types.js").ToolCatalogGroup;
 export type ToolsCatalogResult =
-  import("../../../src/gateway/protocol/schema/types.js").ToolsCatalogResult;
+  import("./compat/gateway/protocol/schema/types.js").ToolsCatalogResult;
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 

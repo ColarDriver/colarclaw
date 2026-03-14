@@ -18,6 +18,7 @@ import {
 } from "./app-settings.ts";
 import { loadControlUiBootstrapConfig } from "./controllers/control-ui-bootstrap.ts";
 import type { Tab } from "./navigation.ts";
+import { loadUiRuntimeContracts } from "./runtime-contracts.ts";
 
 type LifecycleHost = {
   basePath: string;
@@ -46,7 +47,10 @@ export function handleConnected(host: LifecycleHost) {
   const connectGeneration = ++host.connectGeneration;
   host.basePath = inferBasePath();
   applySettingsFromUrl(host as unknown as Parameters<typeof applySettingsFromUrl>[0]);
-  const bootstrapReady = loadControlUiBootstrapConfig(host);
+  const bootstrapReady = (async () => {
+    await loadUiRuntimeContracts(host.basePath);
+    await loadControlUiBootstrapConfig(host);
+  })();
   syncTabWithLocation(host as unknown as Parameters<typeof syncTabWithLocation>[0], true);
   syncThemeWithSettings(host as unknown as Parameters<typeof syncThemeWithSettings>[0]);
   attachThemeListener(host as unknown as Parameters<typeof attachThemeListener>[0]);

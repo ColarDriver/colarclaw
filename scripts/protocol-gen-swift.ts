@@ -1,7 +1,11 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ErrorCodes, PROTOCOL_VERSION, ProtocolSchemas } from "../src/gateway/protocol/schema.js";
+import {
+  ErrorCodes,
+  PROTOCOL_VERSION,
+  ProtocolSchemas,
+} from "../ui/src/ui/compat/gateway/protocol/schema.js";
 
 type JsonSchema = {
   type?: string | string[];

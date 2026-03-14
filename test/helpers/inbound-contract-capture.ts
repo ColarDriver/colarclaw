@@ -1,4 +1,4 @@
-import type { MsgContext } from "../../src/auto-reply/templating.js";
+import type { MsgContext } from "../../ui/src/ui/compat/auto-reply/templating.js";
 import { buildDispatchInboundCaptureMock } from "./dispatch-inbound-capture.js";
 
 export type InboundContextCapture = {

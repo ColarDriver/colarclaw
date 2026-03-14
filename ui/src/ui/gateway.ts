@@ -1,17 +1,19 @@
-import { buildDeviceAuthPayload } from "../../../src/gateway/device-auth.js";
+import { buildDeviceAuthPayload } from "./compat/gateway/device-auth.js";
 import {
-  GATEWAY_CLIENT_MODES,
-  GATEWAY_CLIENT_NAMES,
   type GatewayClientMode,
   type GatewayClientName,
-} from "../../../src/gateway/protocol/client-info.js";
+} from "./compat/gateway/protocol/client-info.js";
 import {
-  ConnectErrorDetailCodes,
   readConnectErrorRecoveryAdvice,
   readConnectErrorDetailCode,
-} from "../../../src/gateway/protocol/connect-error-details.js";
+} from "./compat/gateway/protocol/connect-error-details.js";
 import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth.ts";
 import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity.ts";
+import {
+  getConnectErrorCode,
+  getGatewayClientModeWebchat,
+  getGatewayClientNameControlUi,
+} from "./runtime-contracts.ts";
 import { generateUUID } from "./uuid.ts";
 
 export type GatewayEventFrame = {
@@ -68,14 +70,14 @@ export function isNonRecoverableAuthError(error: GatewayErrorInfo | undefined): 
   }
   const code = resolveGatewayErrorDetailCode(error);
   return (
-    code === ConnectErrorDetailCodes.AUTH_TOKEN_MISSING ||
-    code === ConnectErrorDetailCodes.AUTH_BOOTSTRAP_TOKEN_INVALID ||
-    code === ConnectErrorDetailCodes.AUTH_PASSWORD_MISSING ||
-    code === ConnectErrorDetailCodes.AUTH_PASSWORD_MISMATCH ||
-    code === ConnectErrorDetailCodes.AUTH_RATE_LIMITED ||
-    code === ConnectErrorDetailCodes.PAIRING_REQUIRED ||
-    code === ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED ||
-    code === ConnectErrorDetailCodes.DEVICE_IDENTITY_REQUIRED
+    code === getConnectErrorCode("AUTH_TOKEN_MISSING") ||
+    code === getConnectErrorCode("AUTH_BOOTSTRAP_TOKEN_INVALID") ||
+    code === getConnectErrorCode("AUTH_PASSWORD_MISSING") ||
+    code === getConnectErrorCode("AUTH_PASSWORD_MISMATCH") ||
+    code === getConnectErrorCode("AUTH_RATE_LIMITED") ||
+    code === getConnectErrorCode("PAIRING_REQUIRED") ||
+    code === getConnectErrorCode("CONTROL_UI_DEVICE_IDENTITY_REQUIRED") ||
+    code === getConnectErrorCode("DEVICE_IDENTITY_REQUIRED")
   );
 }
 
@@ -196,7 +198,7 @@ export class GatewayBrowserClient {
       this.opts.onClose?.({ code: ev.code, reason, error: connectError });
       const connectErrorCode = resolveGatewayErrorDetailCode(connectError);
       if (
-        connectErrorCode === ConnectErrorDetailCodes.AUTH_TOKEN_MISMATCH &&
+        connectErrorCode === getConnectErrorCode("AUTH_TOKEN_MISMATCH") &&
         this.deviceTokenRetryBudgetUsed &&
         !this.pendingDeviceTokenRetry
       ) {
@@ -289,8 +291,8 @@ export class GatewayBrowserClient {
       const nonce = this.connectNonce ?? "";
       const payload = buildDeviceAuthPayload({
         deviceId: deviceIdentity.deviceId,
-        clientId: this.opts.clientName ?? GATEWAY_CLIENT_NAMES.CONTROL_UI,
-        clientMode: this.opts.mode ?? GATEWAY_CLIENT_MODES.WEBCHAT,
+        clientId: this.opts.clientName ?? getGatewayClientNameControlUi(),
+        clientMode: this.opts.mode ?? getGatewayClientModeWebchat(),
         role,
         scopes,
         signedAtMs,
@@ -310,10 +312,10 @@ export class GatewayBrowserClient {
       minProtocol: 3,
       maxProtocol: 3,
       client: {
-        id: this.opts.clientName ?? GATEWAY_CLIENT_NAMES.CONTROL_UI,
+        id: this.opts.clientName ?? getGatewayClientNameControlUi(),
         version: this.opts.clientVersion ?? "control-ui",
         platform: this.opts.platform ?? navigator.platform ?? "web",
-        mode: this.opts.mode ?? GATEWAY_CLIENT_MODES.WEBCHAT,
+        mode: this.opts.mode ?? getGatewayClientModeWebchat(),
         instanceId: this.opts.instanceId,
       },
       role,
@@ -350,7 +352,7 @@ export class GatewayBrowserClient {
         const canRetryWithDeviceTokenHint =
           recoveryAdvice.canRetryWithDeviceToken === true ||
           retryWithDeviceTokenRecommended ||
-          connectErrorCode === ConnectErrorDetailCodes.AUTH_TOKEN_MISMATCH;
+          connectErrorCode === getConnectErrorCode("AUTH_TOKEN_MISMATCH");
         const shouldRetryWithDeviceToken =
           !this.deviceTokenRetryBudgetUsed &&
           !selectedAuth.authDeviceToken &&
@@ -375,7 +377,7 @@ export class GatewayBrowserClient {
         if (
           selectedAuth.canFallbackToShared &&
           deviceIdentity &&
-          connectErrorCode === ConnectErrorDetailCodes.AUTH_DEVICE_TOKEN_MISMATCH
+          connectErrorCode === getConnectErrorCode("AUTH_DEVICE_TOKEN_MISMATCH")
         ) {
           clearDeviceAuthToken({ deviceId: deviceIdentity.deviceId, role });
         }

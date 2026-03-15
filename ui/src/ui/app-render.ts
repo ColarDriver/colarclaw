@@ -61,6 +61,12 @@ import {
   updateExecApprovalsFormValue,
 } from "./controllers/exec-approvals.ts";
 import { loadLogs } from "./controllers/logs.ts";
+import {
+  cloneModelsProvidersDraft,
+  deleteModelsProvider,
+  loadModelsProviders,
+  saveModelsProviders,
+} from "./controllers/models-providers.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
 import { deleteSessionAndRefresh, loadSessions, patchSession } from "./controllers/sessions.ts";
@@ -120,6 +126,7 @@ const lazyCron = createLazy(() => import("./views/cron.ts"));
 const lazyDebug = createLazy(() => import("./views/debug.ts"));
 const lazyInstances = createLazy(() => import("./views/instances.ts"));
 const lazyLogs = createLazy(() => import("./views/logs.ts"));
+const lazyModels = createLazy(() => import("./views/models.ts"));
 const lazyNodes = createLazy(() => import("./views/nodes.ts"));
 const lazySessions = createLazy(() => import("./views/sessions.ts"));
 const lazySkills = createLazy(() => import("./views/skills.ts"));
@@ -371,6 +378,55 @@ export function renderApp(state: AppViewState) {
     state.cronForm.deliveryMode === "webhook"
       ? rawDeliveryToSuggestions.filter((value) => isHttpUrl(value))
       : rawDeliveryToSuggestions;
+  const parseDelimitedList = (value: string): string[] => {
+    const parts = value
+      .split(/[,\n]/g)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const seen = new Set<string>();
+    const output: string[] = [];
+    for (const part of parts) {
+      if (seen.has(part)) {
+        continue;
+      }
+      seen.add(part);
+      output.push(part);
+    }
+    return output;
+  };
+  const updateModelsProvidersDraft = (
+    update: (draft: import("./controllers/models-providers.js").ModelsProvidersDraft) => void,
+  ) => {
+    if (!state.modelsProvidersDraft) {
+      return;
+    }
+    const next = cloneModelsProvidersDraft(state.modelsProvidersDraft);
+    update(next);
+    state.modelsProvidersDraft = next;
+  };
+  const upsertModelsProviderDraft = (
+    providerId: string,
+    update: (
+      provider: import("./controllers/models-providers.js").ModelsProviderDraftEntry,
+    ) => void,
+  ) => {
+    const normalizedId = providerId.trim().toLowerCase();
+    if (!normalizedId) {
+      return;
+    }
+    updateModelsProvidersDraft((draft) => {
+      const index = draft.providers.findIndex((entry) => entry.id === normalizedId);
+      if (index < 0) {
+        return;
+      }
+      const nextProvider = {
+        ...draft.providers[index],
+        models: [...draft.providers[index].models],
+      };
+      update(nextProvider);
+      draft.providers[index] = nextProvider;
+    });
+  };
 
   return html`
     ${renderCommandPalette({
@@ -1300,6 +1356,127 @@ export function renderApp(state: AppViewState) {
                         ? { kind: "node" as const, nodeId: state.execApprovalsTargetNodeId }
                         : { kind: "gateway" as const };
                     return saveExecApprovals(state, target);
+                  },
+                }),
+              )
+            : nothing
+        }
+
+        ${
+          state.tab === "models"
+            ? lazyRender(lazyModels, (m) =>
+                m.renderModelsProviders({
+                  connected: state.connected,
+                  loading: state.modelsProvidersLoading,
+                  saving: state.modelsProvidersSaving,
+                  error: state.modelsProvidersError,
+                  snapshot: state.modelsProvidersSnapshot,
+                  draft: state.modelsProvidersDraft,
+                  newCustomId: state.modelsProvidersNewCustomId,
+                  newCustomApi: state.modelsProvidersNewCustomApi,
+                  onRefresh: () => loadModelsProviders(state),
+                  onSave: () => saveModelsProviders(state),
+                  onDefaultsChange: (next) => {
+                    updateModelsProvidersDraft((draft) => {
+                      if (typeof next.defaultModel === "string") {
+                        draft.defaults.defaultModel = next.defaultModel;
+                      }
+                      if (typeof next.fallbackText === "string") {
+                        draft.defaults.fallbackModels = parseDelimitedList(next.fallbackText);
+                      }
+                    });
+                  },
+                  onRegistryChange: (registryText) => {
+                    updateModelsProvidersDraft((draft) => {
+                      draft.modelRegistry = parseDelimitedList(registryText);
+                    });
+                  },
+                  onProviderChange: (providerId, patch) => {
+                    upsertModelsProviderDraft(providerId, (provider) => {
+                      if (typeof patch.api === "string") {
+                        provider.api = patch.api.trim();
+                      }
+                      if (typeof patch.baseUrl === "string") {
+                        provider.baseUrl = patch.baseUrl;
+                      }
+                      if (typeof patch.modelsText === "string") {
+                        provider.models = parseDelimitedList(patch.modelsText);
+                      }
+                      if (typeof patch.apiKey === "string") {
+                        provider.apiKey = patch.apiKey;
+                      }
+                      if (typeof patch.apiKeyTouched === "boolean") {
+                        provider.apiKeyTouched = patch.apiKeyTouched;
+                        if (patch.apiKeyTouched) {
+                          if (typeof patch.apiKey === "string" && patch.apiKey.trim()) {
+                            provider.apiKeyConfigured = true;
+                          }
+                          if (typeof patch.apiKey === "string" && patch.apiKey.trim() === "") {
+                            provider.apiKeyConfigured = false;
+                            provider.apiKeyPreview = "";
+                          }
+                        }
+                      }
+                    });
+                  },
+                  onDeleteCustom: (providerId) => {
+                    const normalizedId = providerId.trim().toLowerCase();
+                    if (!normalizedId) {
+                      return;
+                    }
+                    updateModelsProvidersDraft((draft) => {
+                      draft.providers = draft.providers.filter(
+                        (entry) => entry.id !== normalizedId,
+                      );
+                    });
+                    void deleteModelsProvider(state, normalizedId);
+                  },
+                  onNewCustomIdChange: (value) => {
+                    state.modelsProvidersNewCustomId = value;
+                  },
+                  onNewCustomApiChange: (value) => {
+                    state.modelsProvidersNewCustomApi = value;
+                  },
+                  onAddCustom: () => {
+                    const id = state.modelsProvidersNewCustomId.trim().toLowerCase();
+                    if (!id) {
+                      state.modelsProvidersError = "Custom provider id is required.";
+                      return;
+                    }
+                    const allowedApis = state.modelsProvidersSnapshot?.catalog?.customApis ?? [
+                      "openai-completions",
+                      "anthropic-messages",
+                    ];
+                    const requestedApi = state.modelsProvidersNewCustomApi.trim();
+                    const api = allowedApis.includes(requestedApi)
+                      ? requestedApi
+                      : (allowedApis[0] ?? "openai-completions");
+
+                    if (
+                      state.modelsProvidersDraft?.providers.some(
+                        (entry) => entry.id.toLowerCase() === id,
+                      )
+                    ) {
+                      state.modelsProvidersError = `Provider already exists: ${id}`;
+                      return;
+                    }
+
+                    updateModelsProvidersDraft((draft) => {
+                      draft.providers.push({
+                        id,
+                        label: id,
+                        kind: "custom",
+                        api,
+                        baseUrl: "",
+                        models: [],
+                        apiKey: "",
+                        apiKeyTouched: false,
+                        apiKeyConfigured: false,
+                        apiKeyPreview: "",
+                      });
+                    });
+                    state.modelsProvidersError = null;
+                    state.modelsProvidersNewCustomId = "";
                   },
                 }),
               )

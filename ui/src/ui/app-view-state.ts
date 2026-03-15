@@ -140,6 +140,13 @@ export type AppViewState = {
   aiAgentsSearchQuery: string;
   aiAgentsActiveSection: string | null;
   aiAgentsActiveSubsection: string | null;
+  modelsProvidersLoading: boolean;
+  modelsProvidersSaving: boolean;
+  modelsProvidersError: string | null;
+  modelsProvidersSnapshot: import("./types.js").ModelsProvidersSnapshot | null;
+  modelsProvidersDraft: import("./controllers/models-providers.js").ModelsProvidersDraft | null;
+  modelsProvidersNewCustomId: string;
+  modelsProvidersNewCustomApi: string;
   channelsLoading: boolean;
   channelsSnapshot: ChannelsStatusSnapshot | null;
   channelsError: string | null;

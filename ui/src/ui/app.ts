@@ -76,6 +76,7 @@ import type {
   LogEntry,
   LogLevel,
   ModelCatalogEntry,
+  ModelsProvidersSnapshot,
   PresenceEntry,
   ChannelsStatusSnapshot,
   SessionsListResult,
@@ -234,6 +235,15 @@ export class OpenClawApp extends LitElement {
   @state() aiAgentsSearchQuery = "";
   @state() aiAgentsActiveSection: string | null = null;
   @state() aiAgentsActiveSubsection: string | null = null;
+  @state() modelsProvidersLoading = false;
+  @state() modelsProvidersSaving = false;
+  @state() modelsProvidersError: string | null = null;
+  @state() modelsProvidersSnapshot: ModelsProvidersSnapshot | null = null;
+  @state() modelsProvidersDraft:
+    | import("./controllers/models-providers.js").ModelsProvidersDraft
+    | null = null;
+  @state() modelsProvidersNewCustomId = "";
+  @state() modelsProvidersNewCustomApi = "openai-completions";
 
   @state() channelsLoading = false;
   @state() channelsSnapshot: ChannelsStatusSnapshot | null = null;

@@ -44,6 +44,7 @@ describe("TAB_GROUPS", () => {
     const settings = navigation.TAB_GROUPS.find((group) => group.label === "settings");
     expect(settings?.tabs).toEqual([
       "config",
+      "models",
       "communications",
       "appearance",
       "automation",
@@ -61,5 +62,6 @@ describe("TAB_GROUPS", () => {
     expect(navigation.tabFromPath("/infrastructure")).toBe("infrastructure");
     expect(navigation.tabFromPath("/ai-agents")).toBe("aiAgents");
     expect(navigation.tabFromPath("/config")).toBe("config");
+    expect(navigation.tabFromPath("/models")).toBe("models");
   });
 });

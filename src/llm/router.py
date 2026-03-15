@@ -10,9 +10,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from collections.abc import Mapping
+from typing import Any
 
 from ..models.registry import ModelRegistry
-from .providers import resolve_provider, EchoProvider
+from .providers import resolve_provider
 
 logger = logging.getLogger("openclaw.llm.router")
 
@@ -34,10 +36,13 @@ class LlmRouter:
         default_model: str,
         fallback_models: tuple[str, ...],
         model_registry: ModelRegistry,
+        provider_configs: Mapping[str, Any] | None = None,
     ) -> None:
         self._default_model = default_model
         self._fallback_models = fallback_models
         self._model_registry = model_registry
+        self._provider_configs: dict[str, dict[str, Any]] = {}
+        self.update_provider_configs(provider_configs)
 
     async def run(
         self,
@@ -82,7 +87,7 @@ class LlmRouter:
                 logger.warning("model not in registry, skipping: %s", model)
                 continue
 
-            provider = resolve_provider(model)
+            provider = resolve_provider(model, self._provider_configs)
             provider_name = type(provider).__name__
 
             try:
@@ -140,7 +145,7 @@ class LlmRouter:
         for model in model_candidates:
             if self._model_registry.keys() and not self._model_registry.has(model):
                 continue
-            provider = resolve_provider(model)
+            provider = resolve_provider(model, self._provider_configs)
             try:
                 gen = await provider.stream(model=model, messages=msg_list)
                 async for token in gen:
@@ -160,3 +165,18 @@ class LlmRouter:
     ) -> None:
         self._default_model = default_model
         self._fallback_models = fallback_models
+
+    def update_provider_configs(
+        self,
+        provider_configs: Mapping[str, Any] | None,
+    ) -> None:
+        next_configs: dict[str, dict[str, Any]] = {}
+        if isinstance(provider_configs, Mapping):
+            for provider_id, raw in provider_configs.items():
+                if not isinstance(provider_id, str):
+                    continue
+                normalized_id = provider_id.strip().lower()
+                if not normalized_id or not isinstance(raw, Mapping):
+                    continue
+                next_configs[normalized_id] = dict(raw)
+        self._provider_configs = next_configs

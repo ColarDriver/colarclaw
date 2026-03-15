@@ -18,6 +18,7 @@ import { loadDebug } from "./controllers/debug.ts";
 import { loadDevices } from "./controllers/devices.ts";
 import { loadExecApprovals } from "./controllers/exec-approvals.ts";
 import { loadLogs } from "./controllers/logs.ts";
+import { loadModelsProviders } from "./controllers/models-providers.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
 import { loadSessions } from "./controllers/sessions.ts";
@@ -250,6 +251,9 @@ export async function refreshActiveTab(host: SettingsHost) {
       host as unknown as Parameters<typeof scheduleChatScroll>[0],
       !host.chatHasAutoScrolled,
     );
+  }
+  if (host.tab === "models") {
+    await loadModelsProviders(host as unknown as OpenClawApp);
   }
   if (
     host.tab === "config" ||

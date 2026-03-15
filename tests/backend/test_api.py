@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from main import create_app
@@ -7,6 +9,32 @@ from main import create_app
 
 def _headers() -> dict[str, str]:
     return {"Authorization": "Bearer openclaw-dev-token"}
+
+
+def _ws_connect(ws) -> None:
+    ws.send_json(
+        {
+            "type": "req",
+            "id": "connect-1",
+            "method": "connect",
+            "params": {"auth": {"token": "openclaw-dev-token"}},
+        }
+    )
+    frame = ws.receive_json()
+    assert frame["type"] == "res"
+    assert frame["id"] == "connect-1"
+    assert frame["ok"] is True
+
+
+def _ws_call(ws, req_id: str, method: str, params: dict[str, object]) -> dict[str, object]:
+    ws.send_json({"type": "req", "id": req_id, "method": method, "params": params})
+    while True:
+        frame = ws.receive_json()
+        if frame.get("type") != "res":
+            continue
+        if frame.get("id") != req_id:
+            continue
+        return frame
 
 
 def test_healthz() -> None:
@@ -106,17 +134,154 @@ def test_runtime_endpoint_lists_skills_models_and_mcp() -> None:
 def test_ws_connect_and_chat_send() -> None:
     client = TestClient(create_app())
     with client.websocket_connect("/v1/ws/chat?token=openclaw-dev-token") as ws:
-        connect_ok = ws.receive_json()
-        assert connect_ok["event"] == "connect.ok"
+        _ws_connect(ws)
+        res = _ws_call(
+            ws,
+            "chat-send-1",
+            "chat.send",
+            {"sessionKey": "ws-main", "message": "time"},
+        )
+        assert res["ok"] is True
+        payload = res["payload"]
+        assert payload["accepted"] is True
+        assert isinstance(payload["runId"], str) and payload["runId"]
 
-        ws.send_json({"type": "chat.send", "sessionId": "ws-main", "message": "time"})
-        seen_final = False
-        for _ in range(20):
-            frame = ws.receive_json()
-            if frame.get("type") == "final":
-                seen_final = True
-                break
-        assert seen_final
+
+def test_ws_chat_send_new_resets_session() -> None:
+    client = TestClient(create_app())
+    create_resp = client.post("/v1/sessions", json={"title": "WS Reset"}, headers=_headers())
+    assert create_resp.status_code == 200
+    session_id = create_resp.json()["session"]["id"]
+
+    chat_resp = client.post(
+        "/v1/chat/runs",
+        json={"sessionId": session_id, "message": "seed"},
+        headers=_headers(),
+    )
+    assert chat_resp.status_code == 200
+
+    with client.websocket_connect("/v1/ws/chat?token=openclaw-dev-token") as ws:
+        _ws_connect(ws)
+
+        history_before = _ws_call(
+            ws,
+            "history-before-reset",
+            "chat.history",
+            {"sessionKey": session_id},
+        )
+        assert history_before["ok"] is True
+        before_messages = history_before["payload"]["messages"]
+        assert isinstance(before_messages, list) and len(before_messages) >= 2
+
+        reset_res = _ws_call(
+            ws,
+            "chat-send-reset",
+            "chat.send",
+            {"sessionKey": session_id, "message": "/new", "idempotencyKey": "ws-reset-idem"},
+        )
+        assert reset_res["ok"] is True
+        assert reset_res["payload"]["accepted"] is True
+        assert reset_res["payload"]["runId"] == "ws-reset-idem"
+        assert reset_res["payload"]["reason"] == "new"
+        assert reset_res["payload"]["reset"] is True
+
+        history_after = _ws_call(
+            ws,
+            "history-after-reset",
+            "chat.history",
+            {"sessionKey": session_id},
+        )
+        assert history_after["ok"] is True
+        after_messages = history_after["payload"]["messages"]
+        assert isinstance(after_messages, list)
+        assert after_messages == []
+
+
+def test_ws_models_providers_get_apply_delete(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "openclaw.json"
+    monkeypatch.setenv("OPENCLAW_CONFIG", str(config_path))
+
+    client = TestClient(create_app())
+    with client.websocket_connect("/v1/ws/chat?token=openclaw-dev-token") as ws:
+        _ws_connect(ws)
+
+        get_before = _ws_call(ws, "models-get-before", "models.providers.get", {})
+        assert get_before["ok"] is True
+        before_payload = get_before["payload"]
+        assert isinstance(before_payload.get("catalog", {}).get("providers"), list)
+
+        apply_payload = {
+            "defaults": {
+                "defaultModel": "openrouter/gpt-5.4",
+                "fallbackModels": ["openai/gpt-5-mini"],
+            },
+            "modelRegistry": [
+                "openrouter/gpt-5.4=GPT 5.4",
+                "openai/gpt-5-mini=GPT 5 Mini",
+            ],
+            "providers": [
+                {
+                    "id": "openrouter",
+                    "baseUrl": "https://openrouter.ai/api/v1",
+                    "apiKey": "openrouter-test-key",
+                    "models": ["openrouter/gpt-5.4"],
+                },
+                {
+                    "id": "claude",
+                    "apiKey": "anthropic-test-key",
+                },
+                {
+                    "id": "custom-provider",
+                    "kind": "custom",
+                    "api": "openai-completions",
+                    "baseUrl": "https://custom.example/v1",
+                    "apiKey": "custom-provider-key",
+                    "models": ["custom-provider/my-model"],
+                },
+            ],
+        }
+        apply_res = _ws_call(
+            ws,
+            "models-apply",
+            "models.providers.apply",
+            apply_payload,
+        )
+        assert apply_res["ok"] is True
+        assert apply_res["payload"]["ok"] is True
+
+        get_after = _ws_call(ws, "models-get-after", "models.providers.get", {})
+        assert get_after["ok"] is True
+        after_payload = get_after["payload"]
+        assert after_payload["defaults"]["defaultModel"] == "openrouter/gpt-5.4"
+        assert after_payload["defaults"]["fallbackModels"] == ["openai/gpt-5-mini"]
+        assert after_payload["modelRegistry"] == [
+            "openrouter/gpt-5.4=GPT 5.4",
+            "openai/gpt-5-mini=GPT 5 Mini",
+        ]
+
+        providers = {entry["id"]: entry for entry in after_payload["providers"]}
+        assert "openrouter" in providers
+        assert "anthropic" in providers
+        assert "custom-provider" in providers
+        assert providers["openrouter"]["apiKeyConfigured"] is True
+        assert providers["openrouter"]["apiKeyPreview"]
+        assert "openrouter-test-key" not in providers["openrouter"]["apiKeyPreview"]
+
+        delete_res = _ws_call(
+            ws,
+            "models-delete-custom",
+            "models.providers.delete",
+            {"providerId": "custom-provider"},
+        )
+        assert delete_res["ok"] is True
+        assert delete_res["payload"]["ok"] is True
+
+        get_final = _ws_call(ws, "models-get-final", "models.providers.get", {})
+        final_providers = {entry["id"]: entry for entry in get_final["payload"]["providers"]}
+        assert "custom-provider" not in final_providers
 
 
 def test_memory_tool_endpoints_via_chat_flow() -> None:

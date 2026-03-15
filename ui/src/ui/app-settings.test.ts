@@ -20,6 +20,7 @@ type Tab =
   | "nodes"
   | "chat"
   | "config"
+  | "models"
   | "communications"
   | "appearance"
   | "automation"

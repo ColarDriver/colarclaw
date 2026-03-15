@@ -45,8 +45,10 @@ def _apply_model_runtime(container) -> None:
     default_model = str(container.runtime_config.get("defaultModel", "")).strip()
     fallback_models = tuple(container.runtime_config.get("fallbackModels", ()))
     model_entries = tuple(container.runtime_config.get("modelRegistry", ()))
+    provider_configs = container.runtime_config.get("providerConfigs")
     container.model_registry.replace(parse_registered_model_entries(model_entries))
     container.llm_router.update_models(default_model=default_model, fallback_models=fallback_models)
+    container.llm_router.update_provider_configs(provider_configs)
 
 
 def _apply_mcp_runtime(container) -> None:

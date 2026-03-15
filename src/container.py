@@ -3,8 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from .config.io import read_config_file
+from .config.paths import resolve_config_path
 from .core.config import Settings
 from .graph.main_graph import GraphOrchestrator
+from .llm.providers import canonical_provider_id
 from .llm.router import LlmRouter
 from .mcp.registry import McpRegistry, parse_mcp_servers
 from .memory.manager import SessionMemoryRecord
@@ -40,10 +43,128 @@ class Container:
     runtime_config: dict[str, object]
 
 
+def _as_text(value: object) -> str:
+    if isinstance(value, str):
+        return value.strip()
+    return ""
+
+
+def _normalize_string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    items: list[str] = []
+    seen: set[str] = set()
+    for raw in value:
+        if not isinstance(raw, str):
+            continue
+        text = raw.strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        items.append(text)
+    return items
+
+
+def _registry_model_key(entry: object) -> str:
+    if not isinstance(entry, str):
+        return ""
+    value = entry.strip()
+    if not value:
+        return ""
+    if "=" in value:
+        value = value.split("=", 1)[0].strip()
+    return value
+
+
+def _ensure_registry_contains_models(
+    model_registry: tuple[str, ...] | list[str],
+    model_keys: list[str],
+) -> tuple[str, ...]:
+    registry = _normalize_string_list(list(model_registry))
+    seen = {key for key in (_registry_model_key(item) for item in registry) if key}
+    for key in model_keys:
+        model_key = _as_text(key)
+        if not model_key or model_key in seen:
+            continue
+        registry.append(model_key)
+        seen.add(model_key)
+    return tuple(registry)
+
+
+def _normalize_provider_configs(value: object) -> dict[str, dict[str, object]]:
+    if not isinstance(value, dict):
+        return {}
+    normalized: dict[str, dict[str, object]] = {}
+    for raw_provider_id, raw_entry in value.items():
+        if not isinstance(raw_provider_id, str) or not isinstance(raw_entry, dict):
+            continue
+        provider_id = canonical_provider_id(raw_provider_id)
+        if not provider_id or provider_id == "echo":
+            continue
+        entry: dict[str, object] = {}
+        api = _as_text(raw_entry.get("api")).lower()
+        if api:
+            entry["api"] = api
+        base_url = _as_text(raw_entry.get("baseUrl"))
+        if base_url:
+            entry["baseUrl"] = base_url
+        api_key = _as_text(raw_entry.get("apiKey"))
+        if api_key:
+            entry["apiKey"] = api_key
+        models = _normalize_string_list(raw_entry.get("models"))
+        if models:
+            entry["models"] = models
+        if entry:
+            normalized[provider_id] = entry
+    return normalized
+
+
+def _load_models_runtime_from_config() -> dict[str, object]:
+    try:
+        config_data = read_config_file(resolve_config_path())
+    except Exception:
+        return {}
+    if not isinstance(config_data, dict):
+        return {}
+
+    runtime_patch: dict[str, object] = {}
+
+    agents = config_data.get("agents")
+    if isinstance(agents, dict):
+        defaults = agents.get("defaults")
+        if isinstance(defaults, dict):
+            raw_model = defaults.get("model")
+            if isinstance(raw_model, str):
+                default_model = raw_model.strip()
+                if default_model:
+                    runtime_patch["defaultModel"] = default_model
+            elif isinstance(raw_model, dict):
+                primary = _as_text(raw_model.get("primary"))
+                if primary:
+                    runtime_patch["defaultModel"] = primary
+                fallbacks = _normalize_string_list(raw_model.get("fallbacks"))
+                if fallbacks:
+                    runtime_patch["fallbackModels"] = tuple(fallbacks)
+
+            fallback_models = _normalize_string_list(defaults.get("fallbackModels"))
+            if fallback_models:
+                runtime_patch["fallbackModels"] = tuple(fallback_models)
+
+    models = config_data.get("models")
+    if isinstance(models, dict):
+        model_registry = _normalize_string_list(models.get("registry"))
+        if model_registry:
+            runtime_patch["modelRegistry"] = tuple(model_registry)
+        runtime_patch["providerConfigs"] = _normalize_provider_configs(models.get("providers"))
+
+    return runtime_patch
+
+
 def build_container(settings: Settings) -> Container:
     runtime_config: dict[str, object] = {
         "defaultModel": settings.default_model,
         "fallbackModels": settings.fallback_models,
+        "providerConfigs": {},
         "toolAllowlist": settings.tool_allowlist,
         "toolDenylist": (),
         "maxToolCallsPerRun": 4,
@@ -89,6 +210,14 @@ def build_container(settings: Settings) -> Container:
             "qmdMaxInjectedChars": settings.memory_qmd_max_injected_chars,
         },
     }
+    runtime_config.update(_load_models_runtime_from_config())
+    runtime_config["modelRegistry"] = _ensure_registry_contains_models(
+        tuple(runtime_config.get("modelRegistry", ())),
+        [
+            _as_text(runtime_config.get("defaultModel")),
+            *_normalize_string_list(list(runtime_config.get("fallbackModels", ()))),
+        ],
+    )
 
     session_repo = InMemorySessionRepository()
 
@@ -134,7 +263,7 @@ def build_container(settings: Settings) -> Container:
     tool_registry = create_default_registry(settings=settings, runtime_config=runtime_config)
     audit_logger = AuditLogger()
 
-    model_registry_entries = tuple(settings.model_registry)
+    model_registry_entries = tuple(runtime_config.get("modelRegistry", ()))
     model_registry = ModelRegistry(parse_registered_model_entries(model_registry_entries))
 
     mcp_registry_entries = tuple(settings.mcp_servers)
@@ -156,9 +285,10 @@ def build_container(settings: Settings) -> Container:
     )
 
     llm_router = LlmRouter(
-        default_model=settings.default_model,
-        fallback_models=settings.fallback_models,
+        default_model=str(runtime_config.get("defaultModel", settings.default_model)),
+        fallback_models=tuple(runtime_config.get("fallbackModels", settings.fallback_models)),
         model_registry=model_registry,
+        provider_configs=runtime_config.get("providerConfigs"),
     )
 
     graph = GraphOrchestrator(

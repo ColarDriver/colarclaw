@@ -35,6 +35,7 @@ describe("iconForTab", () => {
     expect(iconForTab("skills")).toBe("zap");
     expect(iconForTab("nodes")).toBe("monitor");
     expect(iconForTab("config")).toBe("settings");
+    expect(iconForTab("models")).toBe("brain");
     expect(iconForTab("debug")).toBe("bug");
     expect(iconForTab("logs")).toBe("scrollText");
   });
@@ -117,6 +118,7 @@ describe("pathForTab", () => {
   it("returns correct path without base", () => {
     expect(pathForTab("chat")).toBe("/chat");
     expect(pathForTab("overview")).toBe("/overview");
+    expect(pathForTab("models")).toBe("/models");
   });
 
   it("prepends base path", () => {
@@ -130,6 +132,7 @@ describe("tabFromPath", () => {
     expect(tabFromPath("/chat")).toBe("chat");
     expect(tabFromPath("/overview")).toBe("overview");
     expect(tabFromPath("/sessions")).toBe("sessions");
+    expect(tabFromPath("/models")).toBe("models");
   });
 
   it("returns chat for root path", () => {

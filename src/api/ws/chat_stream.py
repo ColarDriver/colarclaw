@@ -11,8 +11,18 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
+from ...config.io import read_config_file, write_config_file
+from ...config.paths import resolve_config_path
 from ...core.auth import AuthContext, _decode_token, resolve_websocket_auth
 from ...core.config import load_settings
+from ...llm.providers import (
+    canonical_provider_id,
+    list_custom_provider_protocols,
+    list_provider_aliases,
+    list_registered_provider_ids,
+    provider_api_protocol,
+)
+from ...models.registry import parse_registered_model_entries
 from ...version import get_version
 
 router = APIRouter(tags=["ws"])
@@ -23,6 +33,9 @@ SUPPORTED_METHODS = [
     "health",
     "last-heartbeat",
     "models.list",
+    "models.providers.get",
+    "models.providers.apply",
+    "models.providers.delete",
     "chat.history",
     "chat.send",
     "chat.abort",
@@ -75,6 +88,37 @@ SUPPORTED_METHODS = [
     "sessions.usage.logs",
     "update.run",
 ]
+
+_BUILTIN_PROVIDER_IDS = tuple(
+    list_registered_provider_ids(include_aliases=False, include_echo=False)
+)
+_BUILTIN_PROVIDER_ID_SET = set(_BUILTIN_PROVIDER_IDS)
+_PROVIDER_ALIASES = list_provider_aliases()
+_ALLOWED_CUSTOM_PROVIDER_APIS = set(list_custom_provider_protocols())
+_PROVIDER_LABELS: dict[str, str] = {
+    "amazon-bedrock": "Amazon Bedrock",
+    "anyscale": "Anyscale",
+    "anthropic": "Anthropic",
+    "azure": "Azure OpenAI",
+    "byteplus": "BytePlus",
+    "cloudflare-ai-gateway": "Cloudflare AI Gateway",
+    "fireworks": "Fireworks AI",
+    "google": "Google Gemini",
+    "groq": "Groq",
+    "huggingface": "Hugging Face",
+    "kimi-coding": "Kimi Coding",
+    "nvidia": "NVIDIA NIM",
+    "ollama": "Ollama",
+    "opencode": "OpenCode",
+    "openai": "OpenAI",
+    "openrouter": "OpenRouter",
+    "perplexity": "Perplexity",
+    "qwen-portal": "Qwen Portal",
+    "together": "Together AI",
+    "vercel-ai-gateway": "Vercel AI Gateway",
+    "volcengine": "Volcengine",
+    "zai": "Z.ai",
+}
 
 
 def _now_ms() -> int:
@@ -456,6 +500,441 @@ def _build_model_catalog(container) -> list[dict[str, object]]:
     return entries
 
 
+def _provider_kind(provider_id: str) -> str:
+    return "builtin" if provider_id in _BUILTIN_PROVIDER_ID_SET else "custom"
+
+
+def _provider_label(provider_id: str) -> str:
+    known = _PROVIDER_LABELS.get(provider_id)
+    if known:
+        return known
+    if not provider_id:
+        return "Provider"
+    parts = [segment for segment in provider_id.split("-") if segment]
+    if not parts:
+        return provider_id
+    return " ".join(part[:1].upper() + part[1:] for part in parts)
+
+
+def _normalize_string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    result: list[str] = []
+    seen: set[str] = set()
+    for item in value:
+        text = ""
+        if isinstance(item, str):
+            text = item.strip()
+        elif isinstance(item, dict):
+            if isinstance(item.get("id"), str):
+                text = item.get("id", "").strip()
+            elif isinstance(item.get("key"), str):
+                text = item.get("key", "").strip()
+        if not text:
+            continue
+        if text in seen:
+            continue
+        seen.add(text)
+        result.append(text)
+    return result
+
+
+def _registry_model_key(entry: object) -> str:
+    if not isinstance(entry, str):
+        return ""
+    value = entry.strip()
+    if not value:
+        return ""
+    if "=" in value:
+        value = value.split("=", 1)[0].strip()
+    return value
+
+
+def _ensure_registry_contains_models(
+    model_registry: list[str],
+    model_keys: list[str],
+) -> list[str]:
+    registry = _normalize_string_list(model_registry)
+    seen = {key for key in (_registry_model_key(item) for item in registry) if key}
+    for key in model_keys:
+        model_key = _as_text(key)
+        if not model_key or model_key in seen:
+            continue
+        registry.append(model_key)
+        seen.add(model_key)
+    return registry
+
+
+def _looks_like_url(value: str) -> bool:
+    text = value.strip().lower()
+    if not text:
+        return False
+    return text.startswith("http://") or text.startswith("https://") or "://" in text
+
+
+def _mask_api_key(value: str) -> str:
+    text = value.strip()
+    if not text:
+        return ""
+    if len(text) <= 6:
+        return "*" * len(text)
+    hidden_len = max(4, len(text) - 6)
+    return f"{text[:3]}{'*' * hidden_len}{text[-3:]}"
+
+
+def _normalize_provider_configs(raw: object) -> dict[str, dict[str, Any]]:
+    if not isinstance(raw, dict):
+        return {}
+    normalized: dict[str, dict[str, Any]] = {}
+    for raw_provider_id, raw_entry in raw.items():
+        if not isinstance(raw_provider_id, str) or not isinstance(raw_entry, dict):
+            continue
+        provider_id = canonical_provider_id(raw_provider_id)
+        if not provider_id or provider_id == "echo":
+            continue
+        entry: dict[str, Any] = {}
+        if "api" in raw_entry:
+            api = _as_text(raw_entry.get("api")).lower()
+            if api:
+                entry["api"] = api
+        if "baseUrl" in raw_entry:
+            base_url = _as_text(raw_entry.get("baseUrl"))
+            if base_url:
+                entry["baseUrl"] = base_url
+        if "apiKey" in raw_entry:
+            api_key = _as_text(raw_entry.get("apiKey"))
+            if api_key:
+                entry["apiKey"] = api_key
+        models = _normalize_string_list(raw_entry.get("models"))
+        if models:
+            entry["models"] = models
+        if _provider_kind(provider_id) == "custom":
+            api = _as_text(entry.get("api")).lower()
+            if api not in _ALLOWED_CUSTOM_PROVIDER_APIS:
+                entry["api"] = "openai-completions"
+        elif "api" in entry:
+            # Builtin providers use a fixed runtime protocol family.
+            entry["api"] = provider_api_protocol(provider_id)
+        if entry and _provider_entry_has_data(provider_id, entry):
+            normalized[provider_id] = entry
+    return normalized
+
+
+def _provider_entry_has_data(provider_id: str, entry: dict[str, Any]) -> bool:
+    if _as_text(entry.get("apiKey")):
+        return True
+    if _as_text(entry.get("baseUrl")):
+        return True
+    if _normalize_string_list(entry.get("models")):
+        return True
+    if _provider_kind(provider_id) == "custom" and _as_text(entry.get("api")):
+        return True
+    return False
+
+
+def _coerce_provider_apply_entries(value: object) -> dict[str, dict[str, Any]]:
+    entries: dict[str, dict[str, Any]] = {}
+    if isinstance(value, list):
+        for item in value:
+            if not isinstance(item, dict):
+                continue
+            provider_id = _as_text(item.get("id")).lower()
+            if not provider_id:
+                continue
+            entries[provider_id] = dict(item)
+        return entries
+    if isinstance(value, dict):
+        for key, raw in value.items():
+            if not isinstance(key, str) or not isinstance(raw, dict):
+                continue
+            entry = dict(raw)
+            if "id" not in entry:
+                entry["id"] = key
+            entries[key.strip().lower()] = entry
+    return entries
+
+
+def _merge_provider_configs(
+    existing: dict[str, dict[str, Any]],
+    incoming: object,
+) -> dict[str, dict[str, Any]]:
+    if incoming is None:
+        return _normalize_provider_configs(existing)
+
+    merged: dict[str, dict[str, Any]] = {
+        provider_id: dict(entry) for provider_id, entry in existing.items()
+    }
+    apply_entries = _coerce_provider_apply_entries(incoming)
+    for raw_provider_id, patch in apply_entries.items():
+        provider_id = canonical_provider_id(raw_provider_id)
+        if not provider_id or provider_id == "echo":
+            continue
+        next_entry = dict(merged.get(provider_id, {}))
+
+        if "baseUrl" in patch:
+            base_url = _as_text(patch.get("baseUrl"))
+            if base_url:
+                next_entry["baseUrl"] = base_url
+            else:
+                next_entry.pop("baseUrl", None)
+
+        if "models" in patch:
+            models = _normalize_string_list(patch.get("models"))
+            if models:
+                next_entry["models"] = models
+            else:
+                next_entry.pop("models", None)
+
+        if "apiKey" in patch:
+            raw_key = patch.get("apiKey")
+            if isinstance(raw_key, str):
+                api_key = raw_key.strip()
+                if api_key:
+                    if _looks_like_url(api_key):
+                        raise ValueError(
+                            f"apiKey for provider '{provider_id}' looks like a URL; paste only the key value"
+                        )
+                    next_entry["apiKey"] = api_key
+                else:
+                    next_entry.pop("apiKey", None)
+
+        if "api" in patch:
+            api = _as_text(patch.get("api")).lower()
+            if api:
+                next_entry["api"] = api
+            else:
+                next_entry.pop("api", None)
+
+        if _provider_kind(provider_id) == "custom":
+            api = _as_text(next_entry.get("api")).lower() or "openai-completions"
+            if api not in _ALLOWED_CUSTOM_PROVIDER_APIS:
+                raise ValueError(
+                    f"unsupported custom provider api for {provider_id}: {api}"
+                )
+            next_entry["api"] = api
+        elif "api" in next_entry:
+            next_entry["api"] = provider_api_protocol(provider_id)
+
+        if _provider_entry_has_data(provider_id, next_entry):
+            merged[provider_id] = next_entry
+        else:
+            merged.pop(provider_id, None)
+
+    return _normalize_provider_configs(merged)
+
+
+def _provider_entry_for_response(provider_id: str, entry: dict[str, Any]) -> dict[str, Any]:
+    api_key = _as_text(entry.get("apiKey"))
+    return {
+        "id": provider_id,
+        "label": _provider_label(provider_id),
+        "kind": _provider_kind(provider_id),
+        "api": _as_text(entry.get("api")) or provider_api_protocol(provider_id, entry),
+        "baseUrl": _as_text(entry.get("baseUrl")),
+        "models": _normalize_string_list(entry.get("models")),
+        "apiKeyConfigured": bool(api_key),
+        "apiKeyPreview": _mask_api_key(api_key),
+    }
+
+
+def _catalog_entry_for_provider(provider_id: str) -> dict[str, Any]:
+    return {
+        "id": provider_id,
+        "label": _provider_label(provider_id),
+        "kind": "builtin",
+        "api": provider_api_protocol(provider_id),
+        "aliases": list(_PROVIDER_ALIASES.get(provider_id, ())),
+    }
+
+
+def _extract_defaults_from_config(
+    config: dict[str, Any],
+    *,
+    runtime_default_model: str,
+    runtime_fallback_models: list[str],
+) -> tuple[str, list[str]]:
+    default_model = runtime_default_model
+    fallback_models = list(runtime_fallback_models)
+    agents = config.get("agents")
+    if not isinstance(agents, dict):
+        return default_model, fallback_models
+    defaults = agents.get("defaults")
+    if not isinstance(defaults, dict):
+        return default_model, fallback_models
+
+    raw_model = defaults.get("model")
+    if isinstance(raw_model, str) and raw_model.strip():
+        default_model = raw_model.strip()
+    elif isinstance(raw_model, dict):
+        primary = _as_text(raw_model.get("primary"))
+        if primary:
+            default_model = primary
+        if isinstance(raw_model.get("fallbacks"), list):
+            fallback_models = _normalize_string_list(raw_model.get("fallbacks"))
+
+    if "fallbackModels" in defaults and isinstance(defaults.get("fallbackModels"), list):
+        fallback_models = _normalize_string_list(defaults.get("fallbackModels"))
+
+    return default_model, fallback_models
+
+
+def _extract_model_registry_from_config(
+    config: dict[str, Any],
+    *,
+    runtime_model_registry: list[str],
+) -> list[str]:
+    models = config.get("models")
+    if not isinstance(models, dict):
+        return list(runtime_model_registry)
+    if "registry" in models and isinstance(models.get("registry"), list):
+        return _normalize_string_list(models.get("registry"))
+    return list(runtime_model_registry)
+
+
+def _extract_provider_configs_from_config(
+    config: dict[str, Any],
+    *,
+    runtime_provider_configs: object,
+) -> dict[str, dict[str, Any]]:
+    models = config.get("models")
+    if isinstance(models, dict):
+        if "providers" in models and isinstance(models.get("providers"), dict):
+            return _normalize_provider_configs(models.get("providers"))
+    return _normalize_provider_configs(runtime_provider_configs)
+
+
+def _load_models_provider_state(container) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    config_path = resolve_config_path()
+    config_data: dict[str, Any] = {}
+    try:
+        loaded = read_config_file(config_path)
+        if isinstance(loaded, dict):
+            config_data = loaded
+    except FileNotFoundError:
+        config_data = {}
+    except Exception:
+        # Keep runtime operable even if config parse fails.
+        config_data = {}
+
+    runtime_default_model = _as_text(container.runtime_config.get("defaultModel"))
+    runtime_fallback_models = _normalize_string_list(
+        list(container.runtime_config.get("fallbackModels", ()))
+    )
+    runtime_model_registry = _normalize_string_list(
+        list(container.runtime_config.get("modelRegistry", ()))
+    )
+    runtime_provider_configs = container.runtime_config.get("providerConfigs", {})
+
+    default_model, fallback_models = _extract_defaults_from_config(
+        config_data,
+        runtime_default_model=runtime_default_model,
+        runtime_fallback_models=runtime_fallback_models,
+    )
+    model_registry = _extract_model_registry_from_config(
+        config_data,
+        runtime_model_registry=runtime_model_registry,
+    )
+    model_registry = _ensure_registry_contains_models(
+        model_registry,
+        [default_model, *fallback_models],
+    )
+    provider_configs = _extract_provider_configs_from_config(
+        config_data,
+        runtime_provider_configs=runtime_provider_configs,
+    )
+
+    state = {
+        "defaultModel": default_model,
+        "fallbackModels": fallback_models,
+        "modelRegistry": model_registry,
+        "providerConfigs": provider_configs,
+    }
+    return config_path, config_data, state
+
+
+def _apply_models_provider_runtime(container, state: dict[str, Any]) -> None:
+    default_model = _as_text(state.get("defaultModel"))
+    fallback_models = tuple(_normalize_string_list(state.get("fallbackModels")))
+    model_registry = tuple(
+        _ensure_registry_contains_models(
+            _normalize_string_list(state.get("modelRegistry")),
+            [default_model, *fallback_models],
+        )
+    )
+    provider_configs = _normalize_provider_configs(state.get("providerConfigs"))
+
+    container.runtime_config["defaultModel"] = default_model
+    container.runtime_config["fallbackModels"] = fallback_models
+    container.runtime_config["modelRegistry"] = model_registry
+    container.runtime_config["providerConfigs"] = provider_configs
+
+    container.model_registry.replace(parse_registered_model_entries(model_registry))
+    container.llm_router.update_models(
+        default_model=default_model,
+        fallback_models=fallback_models,
+    )
+    container.llm_router.update_provider_configs(provider_configs)
+
+
+def _persist_models_provider_state(
+    *,
+    config_path: str,
+    config_data: dict[str, Any],
+    state: dict[str, Any],
+) -> None:
+    agents = config_data.get("agents")
+    if not isinstance(agents, dict):
+        agents = {}
+        config_data["agents"] = agents
+    defaults = agents.get("defaults")
+    if not isinstance(defaults, dict):
+        defaults = {}
+        agents["defaults"] = defaults
+
+    models = config_data.get("models")
+    if not isinstance(models, dict):
+        models = {}
+        config_data["models"] = models
+
+    default_model = _as_text(state.get("defaultModel"))
+    fallback_models = _normalize_string_list(state.get("fallbackModels"))
+    model_registry = _ensure_registry_contains_models(
+        _normalize_string_list(state.get("modelRegistry")),
+        [default_model, *fallback_models],
+    )
+    provider_configs = _normalize_provider_configs(state.get("providerConfigs"))
+
+    defaults["model"] = default_model
+    defaults["fallbackModels"] = fallback_models
+    models["registry"] = model_registry
+    models["providers"] = provider_configs
+
+    write_config_file(config_path, config_data)
+
+
+def _build_models_providers_payload(container) -> dict[str, Any]:
+    _, _, state = _load_models_provider_state(container)
+    _apply_models_provider_runtime(container, state)
+    provider_configs = _normalize_provider_configs(state.get("providerConfigs"))
+    providers = [
+        _provider_entry_for_response(provider_id, entry)
+        for provider_id, entry in sorted(provider_configs.items(), key=lambda item: item[0])
+    ]
+    catalog = {
+        "providers": [_catalog_entry_for_provider(provider_id) for provider_id in _BUILTIN_PROVIDER_IDS],
+        "customApis": sorted(_ALLOWED_CUSTOM_PROVIDER_APIS),
+    }
+    return {
+        "catalog": catalog,
+        "providers": providers,
+        "defaults": {
+            "defaultModel": _as_text(state.get("defaultModel")),
+            "fallbackModels": _normalize_string_list(state.get("fallbackModels")),
+        },
+        "modelRegistry": _normalize_string_list(state.get("modelRegistry")),
+    }
+
+
 def _build_tools_catalog(websocket: WebSocket) -> dict[str, object]:
     tools = websocket.app.state.container.tool_registry.list()
     return {
@@ -668,6 +1147,31 @@ async def _start_chat_run(
     active_runs[run_id] = _ActiveRun(run_id=run_id, session_key=session_key, task=task)
 
 
+def _reset_session_for_key(
+    *,
+    container,
+    session_meta: dict[str, dict[str, object]],
+    active_runs: dict[str, _ActiveRun],
+    key: str,
+    now: int,
+) -> bool:
+    reset = False
+    repo = container.session_repo
+    if hasattr(repo, "_messages") and isinstance(repo._messages, dict):  # type: ignore[attr-defined]
+        repo._messages[key] = []  # type: ignore[attr-defined]
+        reset = True
+
+    meta = dict(session_meta.get(key, {}))
+    meta["updatedAt"] = now
+    session_meta[key] = meta
+
+    for run in [entry for entry in active_runs.values() if entry.session_key == key]:
+        run.task.cancel()
+        container.session_runtime.abort_run(run.run_id)
+
+    return reset
+
+
 async def _handle_connect(
     websocket: WebSocket,
     state: _ConnectionState,
@@ -776,6 +1280,75 @@ async def _dispatch_method(
     if method == "models.list":
         return True, {"models": _build_model_catalog(container)}
 
+    if method == "models.providers.get":
+        return True, _build_models_providers_payload(container)
+
+    if method == "models.providers.apply":
+        defaults_patch = params.get("defaults")
+        registry_patch = params.get("modelRegistry")
+        providers_patch = params.get("providers")
+
+        config_path, config_data, state = _load_models_provider_state(container)
+
+        if defaults_patch is not None:
+            if not isinstance(defaults_patch, dict):
+                return False, {"code": "INVALID_REQUEST", "message": "defaults must be an object"}
+            if "defaultModel" in defaults_patch or "default" in defaults_patch:
+                next_default_model = _as_text(
+                    defaults_patch.get("defaultModel", defaults_patch.get("default"))
+                )
+                if next_default_model:
+                    state["defaultModel"] = next_default_model
+            if "fallbackModels" in defaults_patch or "fallback" in defaults_patch:
+                state["fallbackModels"] = _normalize_string_list(
+                    defaults_patch.get("fallbackModels", defaults_patch.get("fallback"))
+                )
+
+        if registry_patch is not None:
+            if not isinstance(registry_patch, list):
+                return False, {
+                    "code": "INVALID_REQUEST",
+                    "message": "modelRegistry must be an array",
+                }
+            state["modelRegistry"] = _normalize_string_list(registry_patch)
+
+        current_provider_configs = _normalize_provider_configs(state.get("providerConfigs"))
+        try:
+            merged_provider_configs = _merge_provider_configs(
+                current_provider_configs,
+                providers_patch,
+            )
+        except ValueError as err:
+            return False, {"code": "INVALID_REQUEST", "message": str(err)}
+        state["providerConfigs"] = merged_provider_configs
+
+        _persist_models_provider_state(
+            config_path=config_path,
+            config_data=config_data,
+            state=state,
+        )
+        _apply_models_provider_runtime(container, state)
+        return True, {"ok": True, "appliedAt": _utc_iso_now()}
+
+    if method == "models.providers.delete":
+        provider_id = _as_text(params.get("providerId")).lower()
+        if not provider_id:
+            return False, {"code": "INVALID_REQUEST", "message": "providerId is required"}
+
+        config_path, config_data, state = _load_models_provider_state(container)
+        provider_configs = _normalize_provider_configs(state.get("providerConfigs"))
+        canonical_id = canonical_provider_id(provider_id)
+        provider_configs.pop(canonical_id, None)
+        state["providerConfigs"] = provider_configs
+
+        _persist_models_provider_state(
+            config_path=config_path,
+            config_data=config_data,
+            state=state,
+        )
+        _apply_models_provider_runtime(container, state)
+        return True, {"ok": True}
+
     if method == "chat.history":
         session_key = _as_text(params.get("sessionKey"), "main") or "main"
         limit = _as_int(params.get("limit")) or 0
@@ -839,6 +1412,35 @@ async def _dispatch_method(
                 },
             )
             return True, {"accepted": True, "runId": existing_run, "deduplicated": True}
+
+        command_message = message.lower()
+        if command_message in {"/new", "/reset"}:
+            reset = _reset_session_for_key(
+                container=container,
+                session_meta=session_meta,
+                active_runs=active_runs,
+                key=session_key,
+                now=now,
+            )
+            await _send_frame(
+                websocket,
+                send_lock,
+                {
+                    "type": "event",
+                    "event": "chat",
+                    "payload": {
+                        "runId": run_id,
+                        "sessionKey": session_key,
+                        "state": "final",
+                    },
+                },
+            )
+            return True, {
+                "accepted": True,
+                "runId": run_id,
+                "reset": reset,
+                "reason": "new" if command_message == "/new" else "reset",
+            }
 
         requested_model = params.get("model")
         model = None
@@ -966,17 +1568,13 @@ async def _dispatch_method(
         key = _as_text(params.get("key"))
         if not key:
             return False, {"code": "INVALID_REQUEST", "message": "missing session key"}
-        reset = False
-        repo = container.session_repo
-        if hasattr(repo, "_messages") and isinstance(repo._messages, dict):  # type: ignore[attr-defined]
-            repo._messages[key] = []  # type: ignore[attr-defined]
-            reset = True
-        meta = dict(session_meta.get(key, {}))
-        meta["updatedAt"] = now
-        session_meta[key] = meta
-        for run in [entry for entry in active_runs.values() if entry.session_key == key]:
-            run.task.cancel()
-            container.session_runtime.abort_run(run.run_id)
+        reset = _reset_session_for_key(
+            container=container,
+            session_meta=session_meta,
+            active_runs=active_runs,
+            key=key,
+            now=now,
+        )
         return True, {"ok": True, "path": "memory://sessions", "key": key, "reset": reset}
 
     if method == "sessions.compact":

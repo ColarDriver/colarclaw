@@ -632,6 +632,42 @@ export type ModelCatalogEntry = {
   input?: Array<"text" | "image">;
 };
 
+export type ModelsProviderKind = "builtin" | "custom";
+
+export type ModelsCatalogProvider = {
+  id: string;
+  label: string;
+  kind: ModelsProviderKind;
+  api: string;
+  aliases?: string[];
+};
+
+export type ModelsProvidersCatalog = {
+  providers: ModelsCatalogProvider[];
+  customApis: string[];
+};
+
+export type ModelsProviderEntry = {
+  id: string;
+  label: string;
+  kind: ModelsProviderKind;
+  api: string;
+  baseUrl: string;
+  models: string[];
+  apiKeyConfigured: boolean;
+  apiKeyPreview: string;
+};
+
+export type ModelsProvidersSnapshot = {
+  catalog: ModelsProvidersCatalog;
+  providers: ModelsProviderEntry[];
+  defaults: {
+    defaultModel: string;
+    fallbackModels: string[];
+  };
+  modelRegistry: string[];
+};
+
 export type ToolCatalogProfile =
   import("./compat/gateway/protocol/schema/types.js").ToolCatalogProfile;
 export type ToolCatalogEntry = import("./compat/gateway/protocol/schema/types.js").ToolCatalogEntry;

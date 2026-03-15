@@ -44,6 +44,10 @@ class ToolRuntime:
             )
         )
 
+    @property
+    def registry(self) -> ToolRegistry:
+        return self._registry
+
     async def execute(self, *, run_id: str, tool_name: str, args: dict[str, Any]) -> ToolCallResult:
         run_state = self._run_states.setdefault(run_id, ToolPolicyRunState())
         self._policy.pre_check(

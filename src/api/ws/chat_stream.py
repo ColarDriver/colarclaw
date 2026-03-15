@@ -967,8 +967,14 @@ def _build_tools_catalog(websocket: WebSocket) -> dict[str, object]:
 
 def _build_skills_status(websocket: WebSocket) -> dict[str, object]:
     container = websocket.app.state.container
+    skills_filter = container.runtime_config.get("skillsEnabled")
+    # None = no filter (all enabled), tuple = explicit filter
+    is_filtered = skills_filter is not None
+    enabled_set = set(skills_filter) if is_filtered else None
     skills = []
     for skill in container.skill_catalog.list():
+        # If no filter, all are eligible; otherwise check membership
+        is_eligible = enabled_set is None or skill.key in enabled_set or skill.name in enabled_set
         skills.append(
             {
                 "name": skill.name,
@@ -978,9 +984,9 @@ def _build_skills_status(websocket: WebSocket) -> dict[str, object]:
                 "baseDir": "skills",
                 "skillKey": skill.key,
                 "always": False,
-                "disabled": False,
+                "disabled": not is_eligible,
                 "blockedByAllowlist": False,
-                "eligible": True,
+                "eligible": is_eligible,
                 "requirements": {"bins": [], "env": [], "config": [], "os": []},
                 "missing": {"bins": [], "env": [], "config": [], "os": []},
                 "configChecks": [],
@@ -1068,7 +1074,7 @@ async def _start_chat_run(
             lock = container.session_runtime.lock_for_session(session_key)
             async with lock:
                 session_messages = await _load_graph_session_messages(container, session_key)
-                stream = await container.graph.stream(
+                stream = await container.agent_runner.stream(
                     run_id=run_id,
                     session_id=session_key,
                     message=message,
@@ -1759,10 +1765,50 @@ async def _dispatch_method(
         return True, _build_skills_status(websocket)
 
     if method == "skills.update":
-        return True, {"ok": True}
+        container = websocket.app.state.container
+        skill_key = _as_text(params.get("skillKey"))
+        if not skill_key:
+            return True, {"ok": False, "error": "skillKey is required"}
+
+        enabled = params.get("enabled")
+        config_store = _get_control_ui_config_store(websocket)
+        skills_config = config_store.get("skills", {})
+        if not isinstance(skills_config, dict):
+            skills_config = {}
+
+        # Update the enabled skills list based on the toggle
+        current_enabled = list(skills_config.get("enabled", []))
+        if isinstance(enabled, bool):
+            if enabled and skill_key not in current_enabled:
+                current_enabled.append(skill_key)
+            elif not enabled and skill_key in current_enabled:
+                current_enabled.remove(skill_key)
+
+        skills_config["enabled"] = current_enabled
+        config_store["skills"] = skills_config
+
+        # Sync to the graph runtime:
+        # If the enabled list is empty, set to None (= don't filter, use all)
+        # If explicitly set, use the filter tuple
+        if current_enabled:
+            new_filter: tuple[str, ...] | None = tuple(current_enabled)
+        else:
+            new_filter = None
+        container.agent_runner.update_skills_enabled(new_filter)
+        container.runtime_config["skillsEnabled"] = new_filter
+
+        _append_gateway_log(
+            websocket,
+            f"skills.update: {skill_key} enabled={enabled}, active filter={current_enabled or '(all)'}",
+        )
+        return True, {"ok": True, "skillKey": skill_key}
 
     if method == "skills.install":
-        return True, {"ok": True, "message": "Install not supported in Python backend"}
+        container = websocket.app.state.container
+        # Reload skill catalog to pick up any new skills
+        container.skill_catalog.reload()
+        _append_gateway_log(websocket, "skills.install: reloaded skill catalog")
+        return True, _build_skills_status(websocket)
 
     if method == "tools.catalog":
         return True, _build_tools_catalog(websocket)

@@ -57,7 +57,7 @@ class Settings:
     tool_allowlist: tuple[str, ...]
     model_registry: tuple[str, ...]
     mcp_servers: tuple[str, ...]
-    skills_enabled: tuple[str, ...]
+    skills_enabled: tuple[str, ...] | None
 
     workspace_dir: str
 
@@ -132,7 +132,7 @@ def load_settings() -> Settings:
         mcp_servers=_split_csv(
             os.getenv("OPENCLAW_MCP_SERVERS", "qmd=mcporter daemon start")
         ),
-        skills_enabled=_split_csv(os.getenv("OPENCLAW_SKILLS_ENABLED", "")),
+        skills_enabled=_split_csv(os.getenv("OPENCLAW_SKILLS_ENABLED", "")) or None,
         workspace_dir=os.getenv("OPENCLAW_WORKSPACE_DIR", os.getcwd()),
         memory_enabled=_env_bool("OPENCLAW_MEMORY_ENABLED", True),
         memory_backend=os.getenv("OPENCLAW_MEMORY_BACKEND", "builtin"),

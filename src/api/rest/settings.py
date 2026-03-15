@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from ..deps import get_auth_context, get_container
-from ...graph.main_graph import GraphOrchestrator
+from ...agents.runner import AgentRunner
 from ...mcp.registry import parse_mcp_servers
 from ...memory.manager import SessionMemoryRecord
 from ...memory.retriever import MemoryRetriever
@@ -91,7 +91,7 @@ def _apply_memory_runtime(container) -> None:
         container.memory_manager = resolved.manager
         container.memory_store = MemoryStore(container.session_repo, resolved.manager)
         container.memory_retriever = MemoryRetriever(resolved.manager)
-        container.graph = GraphOrchestrator(
+        container.agent_runner = AgentRunner(
             llm_router=container.llm_router,
             memory_store=container.memory_store,
             memory_retriever=container.memory_retriever,
@@ -108,7 +108,7 @@ def _apply_memory_runtime(container) -> None:
 def _apply_skills_runtime(container) -> None:
     container.skill_catalog.reload()
     skills_enabled = tuple(container.runtime_config.get("skillsEnabled", ()))
-    container.graph.update_skills_enabled(skills_enabled)
+    container.agent_runner.update_skills_enabled(skills_enabled)
 
 
 @router.get("")

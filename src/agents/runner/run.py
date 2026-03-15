@@ -1,48 +1,45 @@
-"""Main graph orchestrator.
+"""Agent runner — core orchestration for embedded agent runs.
 
-Replaces the stub implementation with a real agent loop:
+Ported from openclaw/src/agents/pi-embedded-runner/run.ts
+
+This is the main entry point for running agent turns. The runner
+handles the full cycle:
+
 1. Retrieve memory context
-2. Execute planned/LLM-requested tools  
-3. Build message history with system prompt
+2. Plan and execute tools
+3. Build system prompt (with tool names, skills, context)
 4. Call LLM (with fallback) via LlmRouter
 5. Persist conversation to memory store
 
-Ported from bk/src/agents/pi-embedded-runner + context.ts
+Unlike the original TS which uses a Graph/LangGraph abstraction,
+openclaw uses a direct runner pattern — this module follows that
+approach.
 """
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 from dataclasses import asdict
 from typing import Any, AsyncIterator
 
-from ..agents.system_prompt import (
-    ContextFile,
-    RuntimeInfo,
-    build_agent_system_prompt,
-)
-from .state import GraphState, ToolEvent
-from ..llm.router import LlmRouter
-from ..memory.retriever import MemoryRetriever
-from ..memory.store import MemoryStore
-from ..memory.types import MemorySearchResult
-from ..skills.catalog import SkillCatalog
-from ..tools.middleware import ToolRuntime
+from ..system_prompt import ContextFile
+from .system_prompt import build_embedded_system_prompt
+from .types import AgentRunState, ToolEvent
+from ...llm.router import LlmRouter
+from ...memory.retriever import MemoryRetriever
+from ...memory.store import MemoryStore
+from ...memory.types import MemorySearchResult
+from ...skills.catalog import SkillCatalog
+from ...tools.middleware import ToolRuntime
 
-logger = logging.getLogger("openclaw.graph")
-
-try:
-    from langgraph.graph import END, StateGraph
-    _HAS_LANGGRAPH = True
-except Exception:
-    END = object()
-    StateGraph = None
-    _HAS_LANGGRAPH = False
+logger = logging.getLogger("openclaw.agents.runner")
 
 
-class GraphOrchestrator:
-    """Agent orchestration: memory → tools → LLM → store."""
+class AgentRunner:
+    """Embedded agent runner: memory → tools → prompt → LLM → store.
+
+    Follows openclaw's pi-embedded-runner pattern rather than a
+    graph/workflow abstraction.
+    """
 
     def __init__(
         self,
@@ -52,7 +49,7 @@ class GraphOrchestrator:
         memory_retriever: MemoryRetriever,
         tool_runtime: ToolRuntime,
         skill_catalog: SkillCatalog,
-        skills_enabled: tuple[str, ...],
+        skills_enabled: tuple[str, ...] | None,
     ) -> None:
         self._llm_router = llm_router
         self._memory_store = memory_store
@@ -93,7 +90,7 @@ class GraphOrchestrator:
     # Step 3: execute tool plan
     # ------------------------------------------------------------------
 
-    async def _run_tool_plan(self, state: GraphState) -> None:
+    async def _run_tool_plan(self, state: AgentRunState) -> None:
         for plan in state.planned_tools:
             tool_name = str(plan.get("name", ""))
             tool_args = dict(plan.get("args", {}))
@@ -118,7 +115,7 @@ class GraphOrchestrator:
 
     def _build_messages(
         self,
-        state: GraphState,
+        state: AgentRunState,
         *,
         session_messages: list[dict] | None = None,
     ) -> tuple[str, list[dict]]:
@@ -140,8 +137,13 @@ class GraphOrchestrator:
             for s in active_skills
         ) if active_skills else ""
 
-        system_prompt = build_agent_system_prompt(
+        # Collect tool names from registry for the system prompt
+        # This mirrors openclaw's: toolNames: params.tools.map((tool) => tool.name)
+        tool_names = [t.name for t in self._tool_runtime.registry.list()]
+
+        system_prompt = build_embedded_system_prompt(
             workspace_dir=".",
+            tool_names=tool_names,
             skills_prompt=skills_prompt,
             context_files=context_files,
         )
@@ -174,9 +176,9 @@ class GraphOrchestrator:
         message: str,
         model: str | None = None,
         session_messages: list[dict] | None = None,
-    ) -> GraphState:
+    ) -> AgentRunState:
         """Execute the full agent cycle and return state with response_text."""
-        state = GraphState(
+        state = AgentRunState(
             run_id=run_id,
             session_id=session_id,
             user_message=message,
@@ -229,7 +231,7 @@ class GraphOrchestrator:
         session_messages: list[dict] | None = None,
     ) -> AsyncIterator[str]:
         """Streaming variant – yields text tokens."""
-        state = GraphState(
+        state = AgentRunState(
             run_id=run_id,
             session_id=session_id,
             user_message=message,
@@ -262,14 +264,19 @@ class GraphOrchestrator:
         return _gen()
 
     # ------------------------------------------------------------------
-    # Helpers
+    # Runtime updates
     # ------------------------------------------------------------------
 
-    def update_skills_enabled(self, skills_enabled: tuple[str, ...]) -> None:
+    def update_skills_enabled(self, skills_enabled: tuple[str, ...] | None) -> None:
+        """Update the skill filter at runtime (called from config/WS handlers)."""
         self._skills_enabled = skills_enabled
 
+    # ------------------------------------------------------------------
+    # Payload helpers
+    # ------------------------------------------------------------------
+
     @staticmethod
-    def as_payload(state: GraphState) -> dict[str, Any]:
+    def as_payload(state: AgentRunState) -> dict[str, Any]:
         return {
             "runId": state.run_id,
             "sessionId": state.session_id,

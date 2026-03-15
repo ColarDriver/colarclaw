@@ -44,11 +44,21 @@ class SkillCatalog:
         self._entries = entries
 
     def list(self, skill_filter: tuple[str, ...] | None = None) -> list[SkillEntry]:
+        """Return skill entries filtered by skill_filter.
+
+        Semantics (aligned with openclaw):
+        - skill_filter is None  → no filter, return ALL skills
+        - skill_filter is ()    → explicit disable, return empty
+        - skill_filter is non-empty → return only matching skills
+        """
         values = list(self._entries.values())
         if skill_filter is None:
+            # None = don't filter → return everything
             return sorted(values, key=lambda item: item.key)
+        # Explicit filter provided
         accepted = {item.strip() for item in skill_filter if item.strip()}
         if not accepted:
+            # Empty tuple = disable all
             return []
         return sorted(
             [item for item in values if item.key in accepted or item.name in accepted],

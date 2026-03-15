@@ -66,7 +66,7 @@ async def put_runtime(
     if body.skillsEnabled is not None:
         skills_enabled = tuple(item.strip() for item in body.skillsEnabled if item.strip())
         container.runtime_config["skillsEnabled"] = skills_enabled
-        container.graph.update_skills_enabled(skills_enabled)
+        container.agent_runner.update_skills_enabled(skills_enabled)
 
     if body.memory is not None:
         current_memory = container.runtime_config.get("memory", {})

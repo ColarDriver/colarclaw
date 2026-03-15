@@ -6,7 +6,7 @@ from pathlib import Path
 from .config.io import read_config_file
 from .config.paths import resolve_config_path
 from .core.config import Settings
-from .graph.main_graph import GraphOrchestrator
+from .agents.runner import AgentRunner
 from .llm.providers import canonical_provider_id
 from .llm.router import LlmRouter
 from .mcp.registry import McpRegistry, parse_mcp_servers
@@ -35,7 +35,7 @@ class Container:
     tool_registry: ToolRegistry
     tool_runtime: ToolRuntime
     llm_router: LlmRouter
-    graph: GraphOrchestrator
+    agent_runner: AgentRunner
     metrics: InMemoryMetrics
     model_registry: ModelRegistry
     mcp_registry: McpRegistry
@@ -291,7 +291,7 @@ def build_container(settings: Settings) -> Container:
         provider_configs=runtime_config.get("providerConfigs"),
     )
 
-    graph = GraphOrchestrator(
+    agent_runner = AgentRunner(
         llm_router=llm_router,
         memory_store=memory_store,
         memory_retriever=memory_retriever,
@@ -310,7 +310,7 @@ def build_container(settings: Settings) -> Container:
         tool_registry=tool_registry,
         tool_runtime=tool_runtime,
         llm_router=llm_router,
-        graph=graph,
+        agent_runner=agent_runner,
         metrics=InMemoryMetrics(),
         model_registry=model_registry,
         mcp_registry=mcp_registry,

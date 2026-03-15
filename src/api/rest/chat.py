@@ -1,7 +1,7 @@
 """Chat REST API – REST runs + real-streaming endpoint.
 
 Upgraded from the stub: the /runs/stream endpoint now uses
-GraphOrchestrator.stream() which calls the real LLM provider's
+AgentRunner.stream() which calls the real LLM provider's
 streaming API, yielding tokens as they arrive.
 
 Session message history is fetched and injected into the LLM context
@@ -88,7 +88,7 @@ async def run_chat(
 
         try:
             session_messages = await _load_session_messages(container, body.sessionId)
-            state = await container.graph.run(
+            state = await container.agent_runner.run(
                 run_id=run_id,
                 session_id=body.sessionId,
                 message=body.message,
@@ -186,7 +186,7 @@ async def run_chat_stream(
 
                 # Use real streaming from the graph/LLM
                 aggregate = ""
-                stream_gen = await container.graph.stream(
+                stream_gen = await container.agent_runner.stream(
                     run_id=run_id,
                     session_id=body.sessionId,
                     message=body.message,

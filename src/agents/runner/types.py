@@ -1,6 +1,6 @@
 """Agent runner — types for run state and results.
 
-Ported from openclaw/src/agents/pi-embedded-runner/types.ts
+Ported from colarcore/src/agents/pi-embedded-runner/types.ts
 """
 from __future__ import annotations
 

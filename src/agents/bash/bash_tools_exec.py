@@ -12,7 +12,7 @@ import subprocess
 from dataclasses import dataclass, field
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.bash_tools_exec")
+log = logging.getLogger("colarcore.agents.bash_tools_exec")
 
 
 @dataclass

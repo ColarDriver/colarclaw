@@ -9,7 +9,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.skills")
+log = logging.getLogger("colarcore.agents.skills")
 
 @dataclass
 class SkillMetadata:

@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.workspace")
+log = logging.getLogger("colarcore.agents.workspace")
 
 # ── Default filenames ─────────────────────────────────────────────────────
 DEFAULT_AGENTS_FILENAME = "AGENTS.md"
@@ -28,7 +28,7 @@ DEFAULT_BOOTSTRAP_FILENAME = "BOOTSTRAP.md"
 DEFAULT_MEMORY_FILENAME = "MEMORY.md"
 DEFAULT_MEMORY_ALT_FILENAME = "memory.md"
 
-WORKSPACE_STATE_DIRNAME = ".openclaw"
+WORKSPACE_STATE_DIRNAME = ".colarcore"
 WORKSPACE_STATE_FILENAME = "workspace-state.json"
 WORKSPACE_STATE_VERSION = 1
 MAX_WORKSPACE_BOOTSTRAP_FILE_BYTES = 2 * 1024 * 1024
@@ -81,10 +81,10 @@ class ExtraBootstrapLoadDiagnostic:
 def resolve_default_agent_workspace_dir() -> str:
     """Resolve the default agent workspace directory."""
     home = os.path.expanduser("~")
-    profile = os.environ.get("OPENCLAW_PROFILE", "").strip()
+    profile = os.environ.get("COLARCORE_PROFILE", "").strip()
     if profile and profile.lower() != "default":
-        return os.path.join(home, ".openclaw", f"workspace-{profile}")
-    return os.path.join(home, ".openclaw", "workspace")
+        return os.path.join(home, ".colarcore", f"workspace-{profile}")
+    return os.path.join(home, ".colarcore", "workspace")
 
 
 DEFAULT_AGENT_WORKSPACE_DIR = resolve_default_agent_workspace_dir()

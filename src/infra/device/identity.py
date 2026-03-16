@@ -39,7 +39,7 @@ def resolve_device_identity() -> DeviceIdentity:
 
 
 def _get_or_create_device_id() -> str:
-    state_dir = os.path.join(str(Path.home()), ".openclaw")
+    state_dir = os.path.join(str(Path.home()), ".colarcore")
     id_path = os.path.join(state_dir, "device-id")
     try:
         with open(id_path, "r") as f:
@@ -154,7 +154,7 @@ class BonjourService:
 class BonjourDiscovery:
     """mDNS service discovery (placeholder for zeroconf integration)."""
 
-    def __init__(self, service_type: str = "_openclaw._tcp.local."):
+    def __init__(self, service_type: str = "_colarcore._tcp.local."):
         self.service_type = service_type
         self._services: list[BonjourService] = []
         self._running = False
@@ -214,16 +214,16 @@ def resolve_home_dir() -> str:
     return str(Path.home())
 
 
-def resolve_openclaw_home() -> str:
-    return os.environ.get("OPENCLAW_HOME", os.path.join(str(Path.home()), ".openclaw"))
+def resolve_colarcore_home() -> str:
+    return os.environ.get("COLARCORE_HOME", os.path.join(str(Path.home()), ".colarcore"))
 
 
-def resolve_openclaw_state_dir() -> str:
-    return os.path.join(resolve_openclaw_home(), "state")
+def resolve_colarcore_state_dir() -> str:
+    return os.path.join(resolve_colarcore_home(), "state")
 
 
-def resolve_openclaw_config_dir() -> str:
-    return os.path.join(resolve_openclaw_home(), "config")
+def resolve_colarcore_config_dir() -> str:
+    return os.path.join(resolve_colarcore_home(), "config")
 
 
 # ─── device-identity.ts: Ed25519 identity ───
@@ -294,7 +294,7 @@ def generate_device_identity() -> DeviceIdentityFull:
 
 
 def _resolve_identity_path() -> str:
-    state_dir = os.environ.get("OPENCLAW_STATE_DIR") or os.path.join(str(Path.home()), ".openclaw")
+    state_dir = os.environ.get("COLARCORE_STATE_DIR") or os.path.join(str(Path.home()), ".colarcore")
     return os.path.join(state_dir, "identity", "device.json")
 
 
@@ -398,7 +398,7 @@ class DeviceAuthStoreData:
 
 
 def _resolve_device_auth_path() -> str:
-    state_dir = os.environ.get("OPENCLAW_STATE_DIR") or os.path.join(str(Path.home()), ".openclaw")
+    state_dir = os.environ.get("COLARCORE_STATE_DIR") or os.path.join(str(Path.home()), ".colarcore")
     return os.path.join(state_dir, "identity", DEVICE_AUTH_FILE)
 
 

@@ -19,7 +19,7 @@ import os
 from collections.abc import Mapping
 from typing import Any, AsyncIterator, Protocol, runtime_checkable
 
-logger = logging.getLogger("openclaw.llm.providers")
+logger = logging.getLogger("colarcore.llm.providers")
 
 
 _PROVIDER_ALIASES: dict[str, str] = {

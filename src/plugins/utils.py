@@ -57,7 +57,7 @@ def normalize_plugins_config(plugins: Any = None) -> dict[str, Any]:
 
 
 # ─── Discovery ───
-def discover_openclaw_plugins(workspace_dir: str | None = None, extra_paths: list[str] | None = None, cache: bool = True) -> dict[str, Any]:
+def discover_colarcore_plugins(workspace_dir: str | None = None, extra_paths: list[str] | None = None, cache: bool = True) -> dict[str, Any]:
     return {"candidates": [], "diagnostics": []}
 
 

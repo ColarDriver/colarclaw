@@ -8,7 +8,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.context")
+log = logging.getLogger("colarcore.agents.context")
 
 # ── Constants ──────────────────────────────────────────────────────────────
 CONTEXT_WINDOW_HARD_MIN_TOKENS = 16_000

@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.acp_spawn")
+log = logging.getLogger("colarcore.agents.acp_spawn")
 
 AcpSpawnMode = Literal["direct", "relay", "background"]
 

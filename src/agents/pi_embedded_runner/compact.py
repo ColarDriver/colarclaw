@@ -5,7 +5,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.pi_embedded_runner.compact")
+log = logging.getLogger("colarcore.agents.pi_embedded_runner.compact")
 
 
 @dataclass

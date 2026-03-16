@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.cli_credentials")
+log = logging.getLogger("colarcore.agents.cli_credentials")
 
 
 @dataclass

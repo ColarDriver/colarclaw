@@ -262,17 +262,17 @@ def format_validation_errors(errors: list[dict[str, Any]] | None) -> str:
 
 GATEWAY_CLIENT_IDS = {
     "WEBCHAT_UI": "webchat-ui",
-    "CONTROL_UI": "openclaw-control-ui",
+    "CONTROL_UI": "colarcore-control-ui",
     "WEBCHAT": "webchat",
     "CLI": "cli",
     "GATEWAY_CLIENT": "gateway-client",
-    "MACOS_APP": "openclaw-macos",
-    "IOS_APP": "openclaw-ios",
-    "ANDROID_APP": "openclaw-android",
+    "MACOS_APP": "colarcore-macos",
+    "IOS_APP": "colarcore-ios",
+    "ANDROID_APP": "colarcore-android",
     "NODE_HOST": "node-host",
     "TEST": "test",
     "FINGERPRINT": "fingerprint",
-    "PROBE": "openclaw-probe",
+    "PROBE": "colarcore-probe",
 }
 
 # Back-compat alias

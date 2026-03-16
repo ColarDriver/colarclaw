@@ -8,7 +8,7 @@ from typing import Any
 
 from .run_types import RunResult, RunStatus
 
-log = logging.getLogger("openclaw.agents.pi_embedded_runner.run_attempt")
+log = logging.getLogger("colarcore.agents.pi_embedded_runner.run_attempt")
 
 
 async def run_attempt(

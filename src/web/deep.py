@@ -128,7 +128,7 @@ class WAContactStore:
     """Manages WhatsApp contacts cache."""
 
     def __init__(self, store_path: str = ""):
-        self._path = store_path or os.path.expanduser("~/.openclaw/wa-contacts.json")
+        self._path = store_path or os.path.expanduser("~/.colarcore/wa-contacts.json")
         self._contacts: dict[str, dict[str, str]] = {}
         self._load()
 

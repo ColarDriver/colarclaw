@@ -76,7 +76,7 @@ def _redact_sessions_spawn_attachments(value: Any) -> Any:
             redacted.append(item)
             continue
         next_item = {k: v for k, v in item.items() if k != "content"}
-        next_item["content"] = "__OPENCLAW_REDACTED__"
+        next_item["content"] = "__COLARCORE_REDACTED__"
         redacted.append(next_item)
     return {**value, "attachments": redacted}
 
@@ -119,7 +119,7 @@ def make_missing_tool_result(tool_call_id: str, tool_name: str | None = None) ->
         "toolName": tool_name or "unknown",
         "content": [{
             "type": "text",
-            "text": "[openclaw] missing tool result in session history; "
+            "text": "[colarcore] missing tool result in session history; "
                     "inserted synthetic error result for transcript repair.",
         }],
         "isError": True,

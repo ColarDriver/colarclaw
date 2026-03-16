@@ -33,8 +33,8 @@ TAILSCALE_MISSING_BIN_NOTE_LINES = [
 
 TAILSCALE_DOCS_LINES = [
     "Docs:",
-    "https://docs.openclaw.ai/gateway/tailscale",
-    "https://docs.openclaw.ai/web",
+    "https://docs.colarcore.ai/gateway/tailscale",
+    "https://docs.colarcore.ai/web",
 ]
 
 

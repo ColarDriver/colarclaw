@@ -9,8 +9,8 @@ from .constants import AUTH_PROFILE_FILENAME, AUTH_STORE_VERSION, LEGACY_AUTH_FI
 
 
 def _resolve_agent_dir() -> str:
-    """Resolve the OpenClaw agent directory."""
-    return os.path.join(str(Path.home()), ".openclaw")
+    """Resolve the ColarCore agent directory."""
+    return os.path.join(str(Path.home()), ".colarcore")
 
 
 def resolve_auth_store_path(agent_dir: str | None = None) -> str:

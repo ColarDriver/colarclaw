@@ -106,7 +106,7 @@ class SessionEntry:
 
 def resolve_sessions_dir(state_dir: str | None = None) -> str:
     """Resolve the sessions storage directory."""
-    base = state_dir or os.path.expanduser("~/.openclaw")
+    base = state_dir or os.path.expanduser("~/.colarcore")
     return os.path.join(base, "sessions")
 
 

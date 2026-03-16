@@ -262,8 +262,8 @@ _DEFAULT_SECURITY: ExecSecurity = "deny"
 _DEFAULT_ASK: ExecAsk = "on-miss"
 _DEFAULT_ASK_FALLBACK: ExecSecurity = "deny"
 _DEFAULT_AUTO_ALLOW_SKILLS = False
-_DEFAULT_SOCKET = "~/.openclaw/exec-approvals.sock"
-_DEFAULT_FILE = "~/.openclaw/exec-approvals.json"
+_DEFAULT_SOCKET = "~/.colarcore/exec-approvals.sock"
+_DEFAULT_FILE = "~/.colarcore/exec-approvals.json"
 
 
 def _expand_home(p: str) -> str:

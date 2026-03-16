@@ -33,7 +33,7 @@ def resolve_widearea_discovery_domain(
 ) -> str | None:
     """Resolve the wide-area discovery domain from config or environment."""
     effective_env = env or dict(os.environ)
-    candidate = config_domain or effective_env.get("OPENCLAW_WIDE_AREA_DOMAIN")
+    candidate = config_domain or effective_env.get("COLARCORE_WIDE_AREA_DOMAIN")
     return normalize_widearea_domain(candidate)
 
 
@@ -42,7 +42,7 @@ def _zone_filename_for_domain(domain: str) -> str:
 
 
 def get_widearea_zone_path(domain: str, config_dir: str | None = None) -> str:
-    base = config_dir or os.path.join(str(Path.home()), ".openclaw")
+    base = config_dir or os.path.join(str(Path.home()), ".colarcore")
     return os.path.join(base, "dns", _zone_filename_for_domain(domain))
 
 
@@ -84,7 +84,7 @@ def _extract_serial(zone_text: str) -> int | None:
 
 
 def _extract_content_hash(zone_text: str) -> str | None:
-    match = re.search(r"^\s*;\s*openclaw-content-hash:\s*(\S+)\s*$", zone_text, re.MULTILINE)
+    match = re.search(r"^\s*;\s*colarcore-content-hash:\s*(\S+)\s*$", zone_text, re.MULTILINE)
     return match.group(1) if match else None
 
 
@@ -115,9 +115,9 @@ class WideAreaGatewayZoneOpts:
 
 def render_widearea_gateway_zone_text(opts: WideAreaGatewayZoneOpts, serial: int) -> str:
     """Render a DNS zone file for wide-area gateway discovery."""
-    hostname = socket.gethostname().split(".")[0] or "openclaw"
-    host_label = _dns_label(opts.host_label or hostname, "openclaw")
-    instance_label = _dns_label(opts.instance_label or f"{hostname}-gateway", "openclaw-gw")
+    hostname = socket.gethostname().split(".")[0] or "colarcore"
+    host_label = _dns_label(opts.host_label or hostname, "colarcore")
+    instance_label = _dns_label(opts.instance_label or f"{hostname}-gateway", "colarcore-gw")
     domain = normalize_widearea_domain(opts.domain) or "local."
 
     txt_parts = [
@@ -149,9 +149,9 @@ def render_widearea_gateway_zone_text(opts: WideAreaGatewayZoneOpts, serial: int
         records.append(f"{host_label} IN AAAA {opts.tailnet_ipv6}")
 
     records.extend([
-        f"_openclaw-gw._tcp IN PTR {instance_label}._openclaw-gw._tcp",
-        f"{instance_label}._openclaw-gw._tcp IN SRV 0 0 {opts.gateway_port} {host_label}",
-        f"{instance_label}._openclaw-gw._tcp IN TXT {' '.join(_txt_quote(t) for t in txt_parts)}",
+        f"_colarcore-gw._tcp IN PTR {instance_label}._colarcore-gw._tcp",
+        f"{instance_label}._colarcore-gw._tcp IN SRV 0 0 {opts.gateway_port} {host_label}",
+        f"{instance_label}._colarcore-gw._tcp IN TXT {' '.join(_txt_quote(t) for t in txt_parts)}",
     ])
 
     content_body = "\n".join(records) + "\n"
@@ -162,7 +162,7 @@ def render_widearea_gateway_zone_text(opts: WideAreaGatewayZoneOpts, serial: int
     hash_body = content_body.replace(soa_line, soa_placeholder)
     content_hash = _compute_content_hash(hash_body)
 
-    return f"; openclaw-content-hash: {content_hash}\n{content_body}"
+    return f"; colarcore-content-hash: {content_hash}\n{content_body}"
 
 
 async def write_widearea_gateway_zone(

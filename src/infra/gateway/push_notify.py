@@ -157,7 +157,7 @@ _skills_cache_at = 0.0
 
 
 async def fetch_remote_skills_index(
-    url: str = "https://openclaw.ai/skills/index.json",
+    url: str = "https://colarcore.ai/skills/index.json",
     timeout_s: float = 10.0,
     force: bool = False,
 ) -> RemoteSkillsIndex:
@@ -194,7 +194,7 @@ async def fetch_remote_skills_index(
 
 async def search_remote_skills(
     query: str,
-    url: str = "https://openclaw.ai/skills/index.json",
+    url: str = "https://colarcore.ai/skills/index.json",
 ) -> list[RemoteSkill]:
     """Search remote skills by name/description/tags."""
     index = await fetch_remote_skills_index(url=url)

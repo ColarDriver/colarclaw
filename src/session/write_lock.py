@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger("openclaw.session.write_lock")
+log = logging.getLogger("colarcore.session.write_lock")
 
 DEFAULT_STALE_MS = 30 * 60 * 1000  # 30 minutes
 DEFAULT_MAX_HOLD_MS = 5 * 60 * 1000  # 5 minutes

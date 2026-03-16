@@ -33,7 +33,7 @@ class AcpServerOptions:
 
 
 ACP_AGENT_INFO = {
-    "name": "openclaw-acp",
-    "title": "OpenClaw ACP Gateway",
+    "name": "colarcore-acp",
+    "title": "ColarCore ACP Gateway",
     "version": VERSION,
 }

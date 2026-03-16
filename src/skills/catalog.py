@@ -46,7 +46,7 @@ class SkillCatalog:
     def list(self, skill_filter: tuple[str, ...] | None = None) -> list[SkillEntry]:
         """Return skill entries filtered by skill_filter.
 
-        Semantics (aligned with openclaw):
+        Semantics (aligned with colarcore):
         - skill_filter is None  → no filter, return ALL skills
         - skill_filter is ()    → explicit disable, return empty
         - skill_filter is non-empty → return only matching skills

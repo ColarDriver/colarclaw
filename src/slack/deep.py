@@ -200,7 +200,7 @@ def build_home_tab(
     blocks = [
         {
             "type": "header",
-            "text": {"type": "plain_text", "text": "🤖 OpenClaw"},
+            "text": {"type": "plain_text", "text": "🤖 ColarCore"},
         },
         {"type": "divider"},
         {

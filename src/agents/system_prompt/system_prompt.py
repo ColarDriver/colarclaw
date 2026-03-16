@@ -192,7 +192,7 @@ def build_agent_system_prompt(
     bootstrap_truncation_warning_lines: list[str] | None = None,
 ) -> str:
     if prompt_mode == "none":
-        return "You are a personal assistant running inside OpenClaw."
+        return "You are a personal assistant running inside ColarCore."
 
     is_minimal = prompt_mode == "minimal"
     available_tools = set((t.strip().lower() for t in (tool_names or [])) if tool_names else [])
@@ -221,8 +221,8 @@ def build_agent_system_prompt(
         "canvas": "Present/eval/snapshot the Canvas",
         "cron": "Manage cron jobs and wake events",
         "message": "Send messages and channel actions",
-        "gateway": "Restart, apply config, or run updates on the running OpenClaw process",
-        "agents_list": "List OpenClaw agent ids allowed for sessions_spawn",
+        "gateway": "Restart, apply config, or run updates on the running ColarCore process",
+        "agents_list": "List ColarCore agent ids allowed for sessions_spawn",
         "sessions_list": "List other sessions with filters/last",
         "sessions_history": "Fetch history for another session/sub-agent",
         "sessions_send": "Send a message to another session/sub-agent",
@@ -292,7 +292,7 @@ def build_agent_system_prompt(
 
     # --- Assemble lines ---
     lines: list[str] = [
-        "You are a personal assistant running inside OpenClaw.",
+        "You are a personal assistant running inside ColarCore.",
         "",
         "## Tooling",
         "Tool availability (filtered by policy):",
@@ -312,9 +312,9 @@ def build_agent_system_prompt(
     if docs_path.strip() and not is_minimal:
         lines += [
             "## Documentation",
-            f"OpenClaw docs: {docs_path.strip()}",
-            "Mirror: https://docs.openclaw.ai",
-            "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
+            f"ColarCore docs: {docs_path.strip()}",
+            "Mirror: https://docs.colarcore.ai",
+            "For ColarCore behavior, commands, config, or architecture: consult local docs first.",
             "",
         ]
 
@@ -338,7 +338,7 @@ def build_agent_system_prompt(
     # Workspace files note
     lines += [
         "## Workspace Files (injected)",
-        "These user-editable files are loaded by OpenClaw and included below in Project Context.",
+        "These user-editable files are loaded by ColarCore and included below in Project Context.",
         "",
     ]
 

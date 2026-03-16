@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.tools.loop_detection")
+log = logging.getLogger("colarcore.tools.loop_detection")
 
 # ── Constants ──────────────────────────────────────────────────────────────
 TOOL_CALL_HISTORY_SIZE = 30

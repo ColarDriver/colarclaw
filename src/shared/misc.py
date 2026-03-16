@@ -102,7 +102,7 @@ def format_model_param_b(value: float | None) -> str:
 
 # ─── assistant-identity-values.ts ───
 
-DEFAULT_ASSISTANT_NAME = "OpenClaw"
+DEFAULT_ASSISTANT_NAME = "ColarCore"
 DEFAULT_ASSISTANT_EMOJI = "🐾"
 
 ASSISTANT_IDENTITY_DEFAULTS: dict[str, str] = {

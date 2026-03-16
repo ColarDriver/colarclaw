@@ -89,7 +89,7 @@ def get_onboarding_hints(channel: str) -> list[OnboardingHint]:
                 channel="telegram",
                 title="Create a Telegram bot",
                 message="Open @BotFather on Telegram and create a new bot to get an API token.",
-                docs_url="https://docs.openclaw.ai/channels/telegram",
+                docs_url="https://docs.colarcore.ai/channels/telegram",
             ),
         ],
         "discord": [
@@ -97,7 +97,7 @@ def get_onboarding_hints(channel: str) -> list[OnboardingHint]:
                 channel="discord",
                 title="Create a Discord application",
                 message="Go to the Discord Developer Portal and create a new application with a bot token.",
-                docs_url="https://docs.openclaw.ai/channels/discord",
+                docs_url="https://docs.colarcore.ai/channels/discord",
             ),
         ],
         "slack": [
@@ -105,7 +105,7 @@ def get_onboarding_hints(channel: str) -> list[OnboardingHint]:
                 channel="slack",
                 title="Create a Slack app",
                 message="Create a Slack app with Socket Mode enabled.",
-                docs_url="https://docs.openclaw.ai/channels/slack",
+                docs_url="https://docs.colarcore.ai/channels/slack",
             ),
         ],
     }

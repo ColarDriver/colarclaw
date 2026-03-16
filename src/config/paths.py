@@ -12,13 +12,13 @@ from typing import Any
 
 # Default config file names in priority order
 CONFIG_FILE_NAMES = [
-    "openclaw.json5",
-    "openclaw.json",
-    ".openclaw.json5",
-    ".openclaw.json",
+    "colarcore.json5",
+    "colarcore.json",
+    ".colarcore.json5",
+    ".colarcore.json",
 ]
 
-DEFAULT_STATE_DIR_NAME = ".openclaw"
+DEFAULT_STATE_DIR_NAME = ".colarcore"
 DEFAULT_PORT = 18789
 
 
@@ -26,7 +26,7 @@ def resolve_home_dir(env: dict[str, str] | None = None) -> str:
     """Resolve the user's home directory."""
     e = env or os.environ
     # Check explicit override
-    home = e.get("OPENCLAW_HOME")
+    home = e.get("COLARCORE_HOME")
     if home and home.strip():
         return home.strip()
     return str(Path.home())
@@ -36,11 +36,11 @@ def resolve_state_dir(
     env: dict[str, str] | None = None,
     homedir: str | None = None,
 ) -> str:
-    """Resolve the OpenClaw state directory (~/.openclaw)."""
+    """Resolve the ColarCore state directory (~/.colarcore)."""
     e = env or os.environ
 
     # Explicit override
-    state_dir = e.get("OPENCLAW_STATE_DIR")
+    state_dir = e.get("COLARCORE_STATE_DIR")
     if state_dir and state_dir.strip():
         return state_dir.strip()
 
@@ -54,13 +54,13 @@ def resolve_config_path(
 ) -> str:
     """Resolve the primary config file path.
 
-    Checks OPENCLAW_CONFIG env var first, then falls back to
+    Checks COLARCORE_CONFIG env var first, then falls back to
     the first existing candidate in the state directory.
     """
     e = env or os.environ
 
     # Explicit config path
-    config_path = e.get("OPENCLAW_CONFIG")
+    config_path = e.get("COLARCORE_CONFIG")
     if config_path and config_path.strip():
         return config_path.strip()
 
@@ -136,7 +136,7 @@ def resolve_cache_dir(
 ) -> str:
     """Resolve the cache directory."""
     e = env or os.environ
-    cache = e.get("OPENCLAW_CACHE_DIR")
+    cache = e.get("COLARCORE_CACHE_DIR")
     if cache and cache.strip():
         return cache.strip()
     sd = state_dir or resolve_state_dir(e)

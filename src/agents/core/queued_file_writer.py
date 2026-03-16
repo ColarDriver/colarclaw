@@ -10,7 +10,7 @@ import logging
 import os
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.queued_file_writer")
+log = logging.getLogger("colarcore.agents.queued_file_writer")
 
 
 class QueuedFileWriter:

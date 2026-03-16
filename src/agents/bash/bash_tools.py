@@ -12,7 +12,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.bash_tools")
+log = logging.getLogger("colarcore.agents.bash_tools")
 
 ExecApprovalStatus = Literal["approved", "denied", "pending"]
 

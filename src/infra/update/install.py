@@ -43,7 +43,7 @@ class InstallTarget:
     version: str | None = None
     registry: str | None = None
     source: str = "npm"  # "npm" | "git" | "local" | "tarball"
-    spec: str = ""  # full install spec e.g. "openclaw@latest"
+    spec: str = ""  # full install spec e.g. "colarcore@latest"
 
 
 def parse_install_spec(spec: str) -> InstallTarget:
@@ -118,13 +118,13 @@ def resolve_install_package_dir(
 ) -> str | None:
     """Resolve where a package should be installed."""
     if mode == "global":
-        base = global_dir or os.path.join(str(Path.home()), ".openclaw", "extensions")
+        base = global_dir or os.path.join(str(Path.home()), ".colarcore", "extensions")
     elif mode == "workspace":
         if not workspace_dir:
             return None
         base = os.path.join(workspace_dir, "node_modules")
     else:
-        base = os.path.join(str(Path.home()), ".openclaw", "extensions")
+        base = os.path.join(str(Path.home()), ".colarcore", "extensions")
 
     return resolve_safe_install_dir(base, name)
 
@@ -385,7 +385,7 @@ async def install_package_dir(
 
         # Stage: copy source to temp
         stage_dir = tempfile.mkdtemp(
-            prefix=".openclaw-install-stage-", dir=install_base_real
+            prefix=".colarcore-install-stage-", dir=install_base_real
         )
         shutil.copytree(source_dir, stage_dir, dirs_exist_ok=True)
 
@@ -410,7 +410,7 @@ async def install_package_dir(
 
         # Backup existing if update
         if mode == "update" and os.path.exists(canonical_target):
-            backup_root = os.path.join(install_base_real, ".openclaw-install-backups")
+            backup_root = os.path.join(install_base_real, ".colarcore-install-backups")
             os.makedirs(backup_root, exist_ok=True)
             backup_dir = os.path.join(
                 backup_root, f"{os.path.basename(canonical_target)}-{int(time.time() * 1000)}"

@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.model_scan")
+log = logging.getLogger("colarcore.agents.model_scan")
 
 @dataclass
 class ScannedModel:

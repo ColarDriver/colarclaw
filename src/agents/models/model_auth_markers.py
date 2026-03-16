@@ -2,7 +2,7 @@
 from __future__ import annotations
 import re
 
-MARKER_PREFIX = "openclaw-auth:"
+MARKER_PREFIX = "colarcore-auth:"
 
 def encode_auth_marker(provider: str, profile_id: str | None = None) -> str:
     parts = [MARKER_PREFIX, provider.strip().lower()]

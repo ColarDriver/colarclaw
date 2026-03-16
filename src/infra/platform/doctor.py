@@ -163,7 +163,7 @@ async def run_doctor(
     sync_checks = [
         check_python_version(),
         check_binary_available("git"),
-        check_directory_writable(os.path.join(str(__import__("pathlib").Path.home()), ".openclaw")),
+        check_directory_writable(os.path.join(str(__import__("pathlib").Path.home()), ".colarcore")),
         check_env_var("ANTHROPIC_API_KEY"),
         check_env_var("OPENAI_API_KEY"),
         check_env_var("GEMINI_API_KEY"),
@@ -212,7 +212,7 @@ async def run_doctor(
 
 def format_doctor_report(report: DoctorReport) -> str:
     """Format doctor report for display."""
-    lines: list[str] = ["OpenClaw Doctor Report", "=" * 40]
+    lines: list[str] = ["ColarCore Doctor Report", "=" * 40]
     for check in report.checks:
         icon = "✓" if check.passed else ("⚠" if check.severity == "warn" else "✗")
         lines.append(f"  {icon} {check.message}")

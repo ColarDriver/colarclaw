@@ -142,7 +142,7 @@ def build_gateway_connection_details(
     env_url_override = None
     if not cli_url_override:
         env_url_override = (
-            trim_to_undefined(os.environ.get("OPENCLAW_GATEWAY_URL"))
+            trim_to_undefined(os.environ.get("COLARCORE_GATEWAY_URL"))
             or trim_to_undefined(os.environ.get("CLAWDBOT_GATEWAY_URL"))
         )
 
@@ -158,7 +158,7 @@ def build_gateway_connection_details(
 
     resolved_url = url_override or remote_url or local_url
     resolved_source = (
-        ("env OPENCLAW_GATEWAY_URL" if url_source_hint == "env" else "cli --url")
+        ("env COLARCORE_GATEWAY_URL" if url_source_hint == "env" else "cli --url")
         if url_override
         else "config gateway.remote.url"
         if remote_url
@@ -173,7 +173,7 @@ def build_gateway_connection_details(
         "set gateway.remote.url or switch gateway.mode=local."
     ) if remote_misconfigured else None
 
-    allow_private_ws = os.environ.get("OPENCLAW_ALLOW_INSECURE_PRIVATE_WS") == "1"
+    allow_private_ws = os.environ.get("COLARCORE_ALLOW_INSECURE_PRIVATE_WS") == "1"
 
     # Security check: block ALL insecure ws:// to non-loopback addresses
     if not is_secure_websocket_url(resolved_url, allow_private_ws=allow_private_ws):
@@ -190,9 +190,9 @@ def build_gateway_connection_details(
             "- or use Tailscale Serve/Funnel for HTTPS remote access\n"
             + ("" if allow_private_ws
                else "Break-glass (trusted private networks only): "
-                    "set OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1\n")
-            + "Doctor: openclaw doctor --fix\n"
-            "Docs: https://docs.openclaw.ai/gateway/remote"
+                    "set COLARCORE_ALLOW_INSECURE_PRIVATE_WS=1\n")
+            + "Doctor: colarcore doctor --fix\n"
+            "Docs: https://docs.colarcore.ai/gateway/remote"
         )
 
     message = "\n".join(filter(None, [

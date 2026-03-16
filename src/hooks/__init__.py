@@ -16,7 +16,7 @@ from .types import (
     HookInstallSpec,
     HookInvocationPolicy,
     HookSnapshot,
-    OpenClawHookMetadata,
+    ColarCoreHookMetadata,
 )
 
 __all__ = [
@@ -34,5 +34,5 @@ __all__ = [
     "HookInstallSpec",
     "HookInvocationPolicy",
     "HookSnapshot",
-    "OpenClawHookMetadata",
+    "ColarCoreHookMetadata",
 ]

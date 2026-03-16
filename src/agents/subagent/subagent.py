@@ -11,7 +11,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-log = logging.getLogger("openclaw.agents.subagent")
+log = logging.getLogger("colarcore.agents.subagent")
 
 
 @dataclass

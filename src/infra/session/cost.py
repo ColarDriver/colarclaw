@@ -519,7 +519,7 @@ def load_cost_usage_summary(
         until_time = now_ms
 
     if not sessions_dir:
-        state_dir = os.path.join(str(Path.home()), ".openclaw")
+        state_dir = os.path.join(str(Path.home()), ".colarcore")
         sessions_dir = os.path.join(state_dir, "sessions")
 
     daily_map: dict[str, CostUsageTotals] = {}

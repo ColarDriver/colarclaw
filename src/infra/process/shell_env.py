@@ -36,7 +36,7 @@ _BLOCKED_ENV_KEYS = {
 }
 
 # Keys that are safe to passthrough
-_PASSTHROUGH_PREFIXES = ("OPENCLAW_", "HOME", "USER", "PATH", "SHELL", "LANG", "LC_",
+_PASSTHROUGH_PREFIXES = ("COLARCORE_", "HOME", "USER", "PATH", "SHELL", "LANG", "LC_",
                           "TERM", "COLORTERM", "FORCE_COLOR", "NO_COLOR", "XDG_", "SSH_AUTH_SOCK")
 
 
@@ -271,16 +271,16 @@ def load_shell_env_fallback(
 
 def should_enable_shell_env_fallback() -> bool:
     from ..env import is_truthy_env_value
-    return is_truthy_env_value(os.environ.get("OPENCLAW_LOAD_SHELL_ENV"))
+    return is_truthy_env_value(os.environ.get("COLARCORE_LOAD_SHELL_ENV"))
 
 
 def should_defer_shell_env_fallback() -> bool:
     from ..env import is_truthy_env_value
-    return is_truthy_env_value(os.environ.get("OPENCLAW_DEFER_SHELL_ENV_FALLBACK"))
+    return is_truthy_env_value(os.environ.get("COLARCORE_DEFER_SHELL_ENV_FALLBACK"))
 
 
 def resolve_shell_env_fallback_timeout_s() -> float:
-    raw = os.environ.get("OPENCLAW_SHELL_ENV_TIMEOUT_MS", "").strip()
+    raw = os.environ.get("COLARCORE_SHELL_ENV_TIMEOUT_MS", "").strip()
     if not raw:
         return DEFAULT_TIMEOUT_S
     try:
@@ -334,7 +334,7 @@ def resolve_stable_node_path() -> str | None:
     """Resolve a stable node binary path."""
     import shutil
     # Prefer explicit env var
-    explicit = os.environ.get("OPENCLAW_NODE_PATH", "").strip()
+    explicit = os.environ.get("COLARCORE_NODE_PATH", "").strip()
     if explicit and os.path.isfile(explicit) and os.access(explicit, os.X_OK):
         return explicit
 
@@ -355,7 +355,7 @@ def resolve_stable_node_path() -> str | None:
 
 def get_node_shell() -> str:
     """Get the shell to use for node child processes."""
-    return os.environ.get("OPENCLAW_NODE_SHELL", DEFAULT_SHELL)
+    return os.environ.get("COLARCORE_NODE_SHELL", DEFAULT_SHELL)
 
 
 def build_node_command(script: str, args: list[str] | None = None) -> list[str]:

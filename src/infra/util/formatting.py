@@ -153,7 +153,7 @@ def is_within_token_budget(text: str, budget: int) -> bool:
 # ─── logger.ts / logging-setup.ts ───
 
 def create_subsystem_logger(name: str, level: str = "INFO") -> logging.Logger:
-    log = logging.getLogger(f"openclaw.{name}")
+    log = logging.getLogger(f"colarcore.{name}")
     log.setLevel(getattr(logging, level.upper(), logging.INFO))
     return log
 
@@ -163,4 +163,4 @@ def setup_logging(level: str = "INFO", format: str = "%(asctime)s [%(name)s] %(l
 
 
 def set_log_level(level: str) -> None:
-    logging.getLogger("openclaw").setLevel(getattr(logging, level.upper(), logging.INFO))
+    logging.getLogger("colarcore").setLevel(getattr(logging, level.upper(), logging.INFO))

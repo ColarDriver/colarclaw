@@ -183,12 +183,12 @@ async def deliver_hook(
     body = json.dumps(payload)
     headers = {
         "Content-Type": "application/json",
-        "User-Agent": "OpenClaw-Gateway/1.0",
+        "User-Agent": "ColarCore-Gateway/1.0",
         **hook.headers,
     }
 
     if hook.secret:
-        headers["X-OpenClaw-Signature"] = sign_hook_payload(body, hook.secret)
+        headers["X-ColarCore-Signature"] = sign_hook_payload(body, hook.secret)
 
     timeout = aiohttp.ClientTimeout(total=hook.timeout_ms / 1000)
 

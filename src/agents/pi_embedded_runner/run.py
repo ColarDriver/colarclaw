@@ -12,7 +12,7 @@ from typing import Any
 from .abort import is_runner_abort_error
 from .run_types import RunParams, RunResult
 
-log = logging.getLogger("openclaw.agents.pi_embedded_runner.run")
+log = logging.getLogger("colarcore.agents.pi_embedded_runner.run")
 
 
 async def execute_run(

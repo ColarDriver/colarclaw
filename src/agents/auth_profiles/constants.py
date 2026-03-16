@@ -18,4 +18,4 @@ AUTH_STORE_LOCK_STALE_MS = 30_000
 EXTERNAL_CLI_SYNC_TTL_MS = 15 * 60 * 1000
 EXTERNAL_CLI_NEAR_EXPIRY_MS = 10 * 60 * 1000
 
-log = logging.getLogger("openclaw.agents.auth_profiles")
+log = logging.getLogger("colarcore.agents.auth_profiles")

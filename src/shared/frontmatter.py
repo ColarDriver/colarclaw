@@ -45,7 +45,7 @@ def parse_frontmatter_bool(value: str | None, fallback: bool) -> bool:
 
 # ─── manifest block ───
 
-MANIFEST_KEY = "openclaw"
+MANIFEST_KEY = "colarcore"
 LEGACY_MANIFEST_KEYS = ["clawd", "clawdbot"]
 
 
@@ -53,7 +53,7 @@ def resolve_manifest_block(
     frontmatter: dict[str, Any],
     key: str = "metadata",
 ) -> dict[str, Any] | None:
-    """Resolve the OpenClaw manifest block from frontmatter."""
+    """Resolve the ColarCore manifest block from frontmatter."""
     raw = get_frontmatter_string(frontmatter, key)
     if not raw:
         return None

@@ -156,13 +156,13 @@ async def handle_gateway_run(opts: GatewayRunOpts) -> bool:
         bind_addr = _get_tailscale_ip() or "127.0.0.1"
 
     # Start
-    log_file = opts.log_file or "/tmp/openclaw-gateway.log"
+    log_file = opts.log_file or "/tmp/colarcore-gateway.log"
     print(f"  Starting gateway on {bind_addr}:{opts.port}...")
 
     if opts.detach:
         from ..process import spawn_process
         spawn_process(
-            sys.executable, ["-m", "openclaw", "gateway", "serve",
+            sys.executable, ["-m", "colarcore", "gateway", "serve",
                             "--port", str(opts.port), "--bind", bind_addr],
             stdout_path=log_file, stderr_path=log_file,
             detach=True,
@@ -233,14 +233,14 @@ async def handle_daemon_status() -> None:
     if system == "Linux":
         try:
             result = subprocess.run(
-                ["systemctl", "is-active", "openclaw-gateway"],
+                ["systemctl", "is-active", "colarcore-gateway"],
                 capture_output=True, text=True, timeout=5,
             )
             print(f"  Systemd:  {result.stdout.strip()}")
         except Exception:
             print(f"  Systemd:  not installed")
     elif system == "Darwin":
-        plist_path = os.path.expanduser("~/Library/LaunchAgents/ai.openclaw.gateway.plist")
+        plist_path = os.path.expanduser("~/Library/LaunchAgents/ai.colarcore.gateway.plist")
         print(f"  LaunchAgent: {'installed' if os.path.exists(plist_path) else 'not installed'}")
 
 
@@ -262,9 +262,9 @@ async def handle_daemon_uninstall() -> bool:
 
     if system == "Linux":
         try:
-            subprocess.run(["systemctl", "--user", "stop", "openclaw-gateway"], capture_output=True, timeout=10)
-            subprocess.run(["systemctl", "--user", "disable", "openclaw-gateway"], capture_output=True, timeout=10)
-            unit_path = os.path.expanduser("~/.config/systemd/user/openclaw-gateway.service")
+            subprocess.run(["systemctl", "--user", "stop", "colarcore-gateway"], capture_output=True, timeout=10)
+            subprocess.run(["systemctl", "--user", "disable", "colarcore-gateway"], capture_output=True, timeout=10)
+            unit_path = os.path.expanduser("~/.config/systemd/user/colarcore-gateway.service")
             if os.path.exists(unit_path):
                 os.unlink(unit_path)
             print("  ✓ Systemd service removed")
@@ -272,7 +272,7 @@ async def handle_daemon_uninstall() -> bool:
         except Exception as e:
             print(f"  ✗ Failed: {e}")
     elif system == "Darwin":
-        plist_path = os.path.expanduser("~/Library/LaunchAgents/ai.openclaw.gateway.plist")
+        plist_path = os.path.expanduser("~/Library/LaunchAgents/ai.colarcore.gateway.plist")
         try:
             subprocess.run(["launchctl", "unload", plist_path], capture_output=True, timeout=10)
             if os.path.exists(plist_path):
@@ -341,7 +341,7 @@ async def handle_channels_list(config: dict[str, Any]) -> None:
         print(f"  {ch_name:<15} {status:<10} {', '.join(features)}")
 
     if not channels:
-        print("  No channels configured. Use 'openclaw channels add' to get started.")
+        print("  No channels configured. Use 'colarcore channels add' to get started.")
     print()
 
 
@@ -361,7 +361,7 @@ async def handle_devices_list() -> None:
         print(f"  {d.device_id[:8]}  {d.device_name:<20} {d.channel:<10} paired {age_h}h ago, seen {seen_h}h ago")
 
     if not devices:
-        print("  No devices paired. Use 'openclaw pair' to add a device.")
+        print("  No devices paired. Use 'colarcore pair' to add a device.")
     print()
 
 
@@ -375,7 +375,7 @@ async def handle_logs(
     json_format: bool = False,
 ) -> None:
     """Handle 'logs' command."""
-    log_path = "/tmp/openclaw-gateway.log"
+    log_path = "/tmp/colarcore-gateway.log"
     if not os.path.exists(log_path):
         from ..config.paths import resolve_logs_dir
         logs_dir = resolve_logs_dir()

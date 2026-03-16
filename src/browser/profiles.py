@@ -26,7 +26,7 @@ def allocate_cdp_port(profiles: dict[str, dict[str, Any]], range_start: int = CD
     return None
 
 
-async def create_profile(name: str, color: str = "#FF4500", cdp_url: str | None = None, driver: str = "openclaw") -> dict[str, Any]:
+async def create_profile(name: str, color: str = "#FF4500", cdp_url: str | None = None, driver: str = "colarcore") -> dict[str, Any]:
     return {"ok": True, "profile": name}
 
 

@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.models.catalog")
+log = logging.getLogger("colarcore.models.catalog")
 
 ModelInputType = Literal["text", "image", "document"]
 
@@ -171,7 +171,7 @@ def load_model_catalog(
     """Load the model catalog from registered models and config.
 
     Args:
-        config: OpenClaw config dict.
+        config: ColarCore config dict.
         use_cache: Whether to use the cached result.
         registered_models: Pre-discovered model entries (from a model registry).
 

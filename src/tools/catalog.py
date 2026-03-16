@@ -18,7 +18,7 @@ class CoreToolDefinition:
     description: str
     section_id: str
     profiles: tuple[ToolProfileId, ...]
-    include_in_openclaw_group: bool = False
+    include_in_colarcore_group: bool = False
 
 
 @dataclass(frozen=True)
@@ -101,11 +101,11 @@ def _build_core_tool_group_map() -> dict[str, list[str]]:
         group_id = f"group:{tool.section_id}"
         section_map.setdefault(group_id, []).append(tool.id)
 
-    openclaw_tools = [
+    colarcore_tools = [
         tool.id for tool in CORE_TOOL_DEFINITIONS
-        if tool.include_in_openclaw_group
+        if tool.include_in_colarcore_group
     ]
-    result = {"group:openclaw": openclaw_tools}
+    result = {"group:colarcore": colarcore_tools}
     result.update(section_map)
     return result
 

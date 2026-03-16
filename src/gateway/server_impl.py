@@ -291,7 +291,7 @@ class GatewayMaintenance:
 @dataclass
 class GatewayDiscoveryInfo:
     """Gateway discovery information for local network announcements."""
-    name: str = "OpenClaw Gateway"
+    name: str = "ColarCore Gateway"
     port: int = 18789
     protocol: str = "ws"
     host: str = "127.0.0.1"

@@ -54,14 +54,14 @@ class BonjourAdvertiser:
 def _is_disabled_by_env() -> bool:
     import os
     from ..env import is_truthy_env_value
-    if is_truthy_env_value(os.environ.get("OPENCLAW_DISABLE_BONJOUR")):
+    if is_truthy_env_value(os.environ.get("COLARCORE_DISABLE_BONJOUR")):
         return True
     return False
 
 
 def _safe_service_name(name: str) -> str:
     trimmed = name.strip()
-    return trimmed if trimmed else "OpenClaw"
+    return trimmed if trimmed else "ColarCore"
 
 
 async def start_gateway_bonjour_advertiser(
@@ -79,14 +79,14 @@ async def start_gateway_bonjour_advertiser(
         logger.debug("zeroconf not available; skipping mDNS advertisement")
         return advertiser
 
-    hostname = socket.gethostname().split(".")[0].strip() or "openclaw"
-    instance_name = opts.instance_name.strip() if opts.instance_name else f"{hostname} (OpenClaw)"
+    hostname = socket.gethostname().split(".")[0].strip() or "colarcore"
+    instance_name = opts.instance_name.strip() if opts.instance_name else f"{hostname} (ColarCore)"
 
     txt_props: dict[str, str] = {
         "role": "gateway",
         "gatewayPort": str(opts.gateway_port),
         "lanHost": f"{hostname}.local",
-        "displayName": instance_name.replace(" (OpenClaw)", "").strip() or instance_name,
+        "displayName": instance_name.replace(" (ColarCore)", "").strip() or instance_name,
         "transport": "gateway",
     }
 
@@ -108,8 +108,8 @@ async def start_gateway_bonjour_advertiser(
         try:
             zc = Zeroconf()
             info = ServiceInfo(
-                "_openclaw-gw._tcp.local.",
-                f"{_safe_service_name(instance_name)}._openclaw-gw._tcp.local.",
+                "_colarcore-gw._tcp.local.",
+                f"{_safe_service_name(instance_name)}._colarcore-gw._tcp.local.",
                 addresses=[socket.inet_aton("0.0.0.0")],
                 port=opts.gateway_port,
                 properties=txt_props,
@@ -201,7 +201,7 @@ def start_gateway_bonjour_browser(
                     pass
 
             listener = Listener()
-            sb = ServiceBrowser(zc, "_openclaw-gw._tcp.local.", listener)
+            sb = ServiceBrowser(zc, "_colarcore-gw._tcp.local.", listener)
             browser._stop_event.wait(timeout=timeout_s)
             zc.close()
         except Exception as e:

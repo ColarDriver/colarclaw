@@ -88,7 +88,7 @@ async def find_tailscale_binary() -> str | None:
 
 async def get_tailscale_binary() -> str:
     global _cached_tailscale_binary
-    forced = os.environ.get("OPENCLAW_TEST_TAILSCALE_BINARY", "").strip()
+    forced = os.environ.get("COLARCORE_TEST_TAILSCALE_BINARY", "").strip()
     if forced:
         _cached_tailscale_binary = forced
         return forced

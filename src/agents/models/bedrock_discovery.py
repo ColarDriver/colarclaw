@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.bedrock_discovery")
+log = logging.getLogger("colarcore.agents.bedrock_discovery")
 
 DEFAULT_REFRESH_INTERVAL_SECONDS = 3600
 DEFAULT_CONTEXT_WINDOW = 32000

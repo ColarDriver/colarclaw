@@ -1,4 +1,4 @@
-"""Version — resolve OpenClaw version at runtime.
+"""Version — resolve ColarCore version at runtime.
 
 Ported from bk/src/version.ts (128行).
 """
@@ -15,7 +15,7 @@ _cached_build_info: dict[str, Any] | None = None
 
 
 def get_version() -> str:
-    """Get the current OpenClaw version."""
+    """Get the current ColarCore version."""
     global _cached_version
     if _cached_version:
         return _cached_version

@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.pi_embedded_runner.session_manager_init")
+log = logging.getLogger("colarcore.agents.pi_embedded_runner.session_manager_init")
 
 
 async def initialize_session_manager(

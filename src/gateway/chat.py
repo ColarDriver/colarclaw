@@ -222,7 +222,7 @@ def build_agent_prompt(
 
 # ─── assistant-identity.ts ───
 
-DEFAULT_ASSISTANT_NAME = "OpenClaw"
+DEFAULT_ASSISTANT_NAME = "ColarCore"
 DEFAULT_ASSISTANT_EMOJI = "🐾"
 
 

@@ -12,7 +12,7 @@ from ...schemas.ui_contracts import UiRuntimeContractsView
 
 router = APIRouter(prefix="/v1/runtime", tags=["runtime"])
 
-CONTROL_UI_BOOTSTRAP_CONFIG_PATH = "/__openclaw/control-ui-config.json"
+CONTROL_UI_BOOTSTRAP_CONFIG_PATH = "/__colarcore/control-ui-config.json"
 GATEWAY_EVENT_UPDATE_AVAILABLE = "update.available"
 
 

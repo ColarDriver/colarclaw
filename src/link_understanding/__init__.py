@@ -47,7 +47,7 @@ async def extract_link_preview(url: str) -> LinkPreview | None:
             async with session.get(
                 url,
                 timeout=aiohttp.ClientTimeout(total=10),
-                headers={"User-Agent": "OpenClaw/1.0 LinkPreview"},
+                headers={"User-Agent": "ColarCore/1.0 LinkPreview"},
                 allow_redirects=True,
             ) as resp:
                 if resp.status != 200:

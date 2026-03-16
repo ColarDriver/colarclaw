@@ -280,8 +280,8 @@ def _validate_env(env: Any, issues: list, warnings: list) -> None:
 
 # ─── Version comparison (version.ts) ───
 
-def compare_openclaw_versions(current: str, other: str) -> int | None:
-    """Compare two OpenClaw version strings.
+def compare_colarcore_versions(current: str, other: str) -> int | None:
+    """Compare two ColarCore version strings.
 
     Returns negative if current < other, 0 if equal, positive if current > other.
     Returns None if either version is unparseable.

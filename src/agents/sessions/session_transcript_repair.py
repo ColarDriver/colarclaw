@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.session_transcript_repair")
+log = logging.getLogger("colarcore.agents.session_transcript_repair")
 
 SYNTHETIC_ERROR_MESSAGE = "[Internal error: tool result was lost during session repair]"
 

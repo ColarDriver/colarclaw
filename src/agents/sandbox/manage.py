@@ -9,7 +9,7 @@ from typing import Any
 from .constants import SANDBOX_LABEL_PREFIX
 from .types import SandboxBrowserInfo, SandboxContainerInfo
 
-log = logging.getLogger("openclaw.agents.sandbox.manage")
+log = logging.getLogger("colarcore.agents.sandbox.manage")
 
 
 async def list_sandbox_containers() -> list[SandboxContainerInfo]:

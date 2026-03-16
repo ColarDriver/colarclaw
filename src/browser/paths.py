@@ -13,7 +13,7 @@ from typing import Any
 
 def get_browser_data_dir() -> str:
     home = Path.home()
-    return str(home / ".config" / "openclaw" / "browser")
+    return str(home / ".config" / "colarcore" / "browser")
 
 
 def get_browser_output_dir() -> str:

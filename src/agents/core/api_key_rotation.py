@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Awaitable, Callable
 
-log = logging.getLogger("openclaw.agents.api_key_rotation")
+log = logging.getLogger("colarcore.agents.api_key_rotation")
 
 
 def _dedupe_api_keys(raw: list[str]) -> list[str]:

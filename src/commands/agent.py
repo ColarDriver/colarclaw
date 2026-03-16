@@ -4,7 +4,7 @@ Ported from bk/src/commands/agent.ts, agent-via-gateway.ts,
 agents.ts, agents.commands.*.ts, agents.config.ts, agents.providers.ts,
 agents.bindings.ts, agent-command-shared.ts.
 
-Handles the `openclaw agent` command: run an agent with a message,
+Handles the `colarcore agent` command: run an agent with a message,
 resolve agent identity, manage agent configurations.
 """
 from __future__ import annotations
@@ -77,7 +77,7 @@ async def run_agent_command(
     5. Stream response
     """
     if not opts.message and not opts.resume:
-        logger.error("No message provided. Usage: openclaw agent 'your message'")
+        logger.error("No message provided. Usage: colarcore agent 'your message'")
         return 1
 
     from ..config import load_config
@@ -187,7 +187,7 @@ async def _run_locally(
 
 def _resolve_gateway_token(cfg: dict[str, Any]) -> str | None:
     """Resolve the gateway auth token."""
-    env_token = os.environ.get("OPENCLAW_GATEWAY_TOKEN")
+    env_token = os.environ.get("COLARCORE_GATEWAY_TOKEN")
     if env_token:
         return env_token
     gateway = cfg.get("gateway", {}) or {}

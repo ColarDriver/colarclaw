@@ -161,7 +161,7 @@ def resolve_message_prefix(
     if has_allow_from:
         return ""
 
-    return resolve_identity_name_prefix(cfg, agent_id) or fallback or "[openclaw]"
+    return resolve_identity_name_prefix(cfg, agent_id) or fallback or "[colarcore]"
 
 
 def resolve_response_prefix(

@@ -229,7 +229,7 @@ def resolve_brew_executable(
 def resolve_effective_home_dir(env: dict[str, str] | None = None) -> str | None:
     """Resolve the effective home directory."""
     e = env or os.environ
-    explicit = e.get("OPENCLAW_HOME", "").strip()
+    explicit = e.get("COLARCORE_HOME", "").strip()
     if explicit:
         if explicit == "~" or explicit.startswith("~/") or explicit.startswith("~\\"):
             fallback = e.get("HOME") or e.get("USERPROFILE") or str(Path.home())

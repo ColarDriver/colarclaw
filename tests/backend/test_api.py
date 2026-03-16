@@ -8,7 +8,7 @@ from main import create_app
 
 
 def _headers() -> dict[str, str]:
-    return {"Authorization": "Bearer openclaw-dev-token"}
+    return {"Authorization": "Bearer colarcore-dev-token"}
 
 
 def _ws_connect(ws) -> None:
@@ -17,7 +17,7 @@ def _ws_connect(ws) -> None:
             "type": "req",
             "id": "connect-1",
             "method": "connect",
-            "params": {"auth": {"token": "openclaw-dev-token"}},
+            "params": {"auth": {"token": "colarcore-dev-token"}},
         }
     )
     frame = ws.receive_json()
@@ -133,7 +133,7 @@ def test_runtime_endpoint_lists_skills_models_and_mcp() -> None:
 
 def test_ws_connect_and_chat_send() -> None:
     client = TestClient(create_app())
-    with client.websocket_connect("/v1/ws/chat?token=openclaw-dev-token") as ws:
+    with client.websocket_connect("/v1/ws/chat?token=colarcore-dev-token") as ws:
         _ws_connect(ws)
         res = _ws_call(
             ws,
@@ -160,7 +160,7 @@ def test_ws_chat_send_new_resets_session() -> None:
     )
     assert chat_resp.status_code == 200
 
-    with client.websocket_connect("/v1/ws/chat?token=openclaw-dev-token") as ws:
+    with client.websocket_connect("/v1/ws/chat?token=colarcore-dev-token") as ws:
         _ws_connect(ws)
 
         history_before = _ws_call(
@@ -201,11 +201,11 @@ def test_ws_models_providers_get_apply_delete(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    config_path = tmp_path / "openclaw.json"
-    monkeypatch.setenv("OPENCLAW_CONFIG", str(config_path))
+    config_path = tmp_path / "colarcore.json"
+    monkeypatch.setenv("COLARCORE_CONFIG", str(config_path))
 
     client = TestClient(create_app())
-    with client.websocket_connect("/v1/ws/chat?token=openclaw-dev-token") as ws:
+    with client.websocket_connect("/v1/ws/chat?token=colarcore-dev-token") as ws:
         _ws_connect(ws)
 
         get_before = _ws_call(ws, "models-get-before", "models.providers.get", {})

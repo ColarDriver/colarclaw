@@ -67,7 +67,7 @@ async def run_doctor_config_flow(config: dict[str, Any]) -> list[DoctorCheck]:
         checks.append(DoctorCheck(name="config_file", status="ok", message=f"Found: {config_path}"))
     else:
         checks.append(DoctorCheck(name="config_file", status="warning",
-                                  message="No config file found", fix_command="openclaw setup"))
+                                  message="No config file found", fix_command="colarcore setup"))
 
     # 2. Provider configured
     providers = config.get("providers", {}) or {}
@@ -83,7 +83,7 @@ async def run_doctor_config_flow(config: dict[str, Any]) -> list[DoctorCheck]:
                                       message=f"Model configured: {model}"))
         else:
             checks.append(DoctorCheck(name="provider", status="error",
-                                      message="No AI provider configured", fix_command="openclaw setup"))
+                                      message="No AI provider configured", fix_command="colarcore setup"))
 
     # 3. API key available
     api_key_found = False
@@ -100,7 +100,7 @@ async def run_doctor_config_flow(config: dict[str, Any]) -> list[DoctorCheck]:
         checks.append(DoctorCheck(name="api_key", status="ok", message="API key found"))
     else:
         checks.append(DoctorCheck(name="api_key", status="error",
-                                  message="No API key found", fix_command="openclaw login"))
+                                  message="No API key found", fix_command="colarcore login"))
 
     # 4. State directory
     from ..config.paths import resolve_state_dir
@@ -383,7 +383,7 @@ async def install_daemon_service(*, mode: str = "auto") -> bool:
     elif mode == "launchd":
         from ..daemon import generate_launchd_plist
         plist = generate_launchd_plist()
-        plist_path = os.path.expanduser("~/Library/LaunchAgents/ai.openclaw.gateway.plist")
+        plist_path = os.path.expanduser("~/Library/LaunchAgents/ai.colarcore.gateway.plist")
         os.makedirs(os.path.dirname(plist_path), exist_ok=True)
         with open(plist_path, "w") as f:
             f.write(plist)

@@ -6,13 +6,13 @@ types.cron.ts, types.plugins.ts, types.secrets.ts, types.memory.ts,
 types.browser.ts, types.tools.ts, types.messages.ts, types.base.ts,
 types.acp.ts, types.approvals.ts, types.cli.ts, types.discord.ts,
 types.slack.ts, types.telegram.ts, types.signal.ts, types.imessage.ts,
-types.whatsapp.ts, types.tts.ts, types.openclaw.ts, types.skills.ts,
+types.whatsapp.ts, types.tts.ts, types.colarcore.ts, types.skills.ts,
 types.node-host.ts, types.sandbox.ts, types.queue.ts, types.installs.ts,
 types.irc.ts, types.googlechat.ts, types.msteams.ts,
 types.channel-messaging-common.ts, types.agent-defaults.ts,
 types.agents-shared.ts, config-paths.ts.
 
-Represents the full OpenClawConfig shape as nested TypedDicts / dataclasses.
+Represents the full ColarCoreConfig shape as nested TypedDicts / dataclasses.
 """
 from __future__ import annotations
 
@@ -281,10 +281,10 @@ class WhatsAppConfig:
 # ─── Main config type ───
 
 @dataclass
-class OpenClawConfig:
-    """Top-level OpenClaw configuration.
+class ColarCoreConfig:
+    """Top-level ColarCore configuration.
 
-    This is the Python equivalent of the TypeScript OpenClawConfig type.
+    This is the Python equivalent of the TypeScript ColarCoreConfig type.
     All fields are optional with sensible defaults.
     """
     meta: MetaConfig = field(default_factory=MetaConfig)
@@ -328,7 +328,7 @@ class ConfigFileSnapshot:
     hash: str | None = None
     path: str = ""
     parsed: dict[str, Any] | None = None
-    config: OpenClawConfig | None = None
+    config: ColarCoreConfig | None = None
     env_snapshot: dict[str, str | None] | None = None
 
 
@@ -352,6 +352,6 @@ class ConfigValidationIssue:
 @dataclass
 class ConfigValidationResult:
     ok: bool = True
-    config: OpenClawConfig | None = None
+    config: ColarCoreConfig | None = None
     issues: list[ConfigValidationIssue] = field(default_factory=list)
     warnings: list[ConfigValidationIssue] = field(default_factory=list)

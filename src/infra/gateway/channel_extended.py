@@ -211,12 +211,12 @@ def relaunch_gateway_scheduled_task(
         )
 
     e = env or os.environ
-    name = task_name or e.get("OPENCLAW_WINDOWS_TASK_NAME", "").strip() or "OpenClawGateway"
+    name = task_name or e.get("COLARCORE_WINDOWS_TASK_NAME", "").strip() or "ColarCoreGateway"
 
     try:
         import tempfile
         script_path = os.path.join(tempfile.gettempdir(),
-                                   f"openclaw-schtasks-restart-{uuid.uuid4()}.cmd")
+                                   f"colarcore-schtasks-restart-{uuid.uuid4()}.cmd")
         retry_limit = 12
         retry_delay = 1
         script = "\r\n".join([

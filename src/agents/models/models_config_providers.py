@@ -14,7 +14,7 @@ from typing import TypedDict
 
 from agents.model_auth import PROVIDER_ENV_VARS
 
-log = logging.getLogger("openclaw.agents.models_config_providers")
+log = logging.getLogger("colarcore.agents.models_config_providers")
 
 MINIMAX_OAUTH_MARKER = "minimax-oauth"
 QWEN_OAUTH_MARKER = "qwen-oauth"

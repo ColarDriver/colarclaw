@@ -352,7 +352,7 @@ def resolve_gateway_auth(cfg: dict[str, Any]) -> ResolvedGatewayAuth:
     tailscale_cfg = auth_cfg.get("tailscale", {}) or {}
 
     # Token from env takes precedence
-    env_token = os.environ.get("OPENCLAW_GATEWAY_TOKEN")
+    env_token = os.environ.get("COLARCORE_GATEWAY_TOKEN")
     if env_token:
         token = env_token.strip()
 

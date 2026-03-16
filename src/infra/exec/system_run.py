@@ -626,7 +626,7 @@ def get_system_presence() -> SystemPresenceInfo | None:
 
 def format_system_presence(info: SystemPresenceInfo) -> str:
     parts = [
-        f"OpenClaw v{info.version}",
+        f"ColarCore v{info.version}",
         f"Platform: {info.platform}",
         f"Host: {info.hostname}",
         f"PID: {info.pid}",

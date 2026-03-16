@@ -155,7 +155,7 @@ class RestartSentinel:
     knows to restart instead of exit.
     """
 
-    def __init__(self, sentinel_path: str = "/tmp/openclaw-restart") -> None:
+    def __init__(self, sentinel_path: str = "/tmp/colarcore-restart") -> None:
         self._path = sentinel_path
 
     def request_restart(self, reason: str = "") -> None:

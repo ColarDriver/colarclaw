@@ -49,7 +49,7 @@ async def check_for_update(*, channel: str = "stable") -> UpdateInfo:
     try:
         tag = "latest" if channel == "stable" else channel
         result = subprocess.run(
-            ["npm", "view", "openclaw", "version", "--tag", tag, "--userconfig", "/dev/null"],
+            ["npm", "view", "colarcore", "version", "--tag", tag, "--userconfig", "/dev/null"],
             capture_output=True, text=True, timeout=10,
         )
         if result.returncode == 0:
@@ -65,7 +65,7 @@ async def check_for_update(*, channel: str = "stable") -> UpdateInfo:
 
 async def run_update(*, version: str = "", channel: str = "stable") -> bool:
     """Run the update command."""
-    pkg = f"openclaw@{version}" if version else "openclaw@latest"
+    pkg = f"colarcore@{version}" if version else "colarcore@latest"
     try:
         result = subprocess.run(
             ["npm", "install", "-g", pkg],
@@ -101,7 +101,7 @@ class PluginInfo:
 
 async def list_plugins(config: dict[str, Any]) -> list[PluginInfo]:
     """List installed plugins."""
-    plugins_dir = os.path.expanduser("~/.openclaw/plugins")
+    plugins_dir = os.path.expanduser("~/.colarcore/plugins")
     plugins = []
     if not os.path.isdir(plugins_dir):
         return plugins
@@ -126,7 +126,7 @@ async def list_plugins(config: dict[str, Any]) -> list[PluginInfo]:
 
 async def install_plugin(name: str, *, version: str = "") -> bool:
     """Install a plugin via npm."""
-    plugins_dir = os.path.expanduser("~/.openclaw/plugins")
+    plugins_dir = os.path.expanduser("~/.colarcore/plugins")
     plugin_dir = os.path.join(plugins_dir, name)
     os.makedirs(plugin_dir, exist_ok=True)
     
@@ -143,7 +143,7 @@ async def install_plugin(name: str, *, version: str = "") -> bool:
 
 async def uninstall_plugin(name: str) -> bool:
     import shutil
-    plugin_dir = os.path.expanduser(f"~/.openclaw/plugins/{name}")
+    plugin_dir = os.path.expanduser(f"~/.colarcore/plugins/{name}")
     if os.path.isdir(plugin_dir):
         shutil.rmtree(plugin_dir, ignore_errors=True)
         return True
@@ -196,7 +196,7 @@ async def memory_clear(*, agent_id: str = "") -> int:
 
 def generate_bash_completion() -> str:
     return '''
-_openclaw_completions() {
+_colarcore_completions() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
     local commands="agent send config gateway channels sessions status doctor setup login
                     version cron secrets plugins daemon nodes browser models memory update
@@ -206,15 +206,15 @@ _openclaw_completions() {
         COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
     fi
 }
-complete -F _openclaw_completions openclaw
+complete -F _colarcore_completions colarcore
 '''.strip()
 
 
 def generate_zsh_completion() -> str:
     return '''
-#compdef openclaw
+#compdef colarcore
 
-_openclaw() {
+_colarcore() {
     local -a commands
     commands=(
         'agent:Run an agent'
@@ -227,27 +227,27 @@ _openclaw() {
         'doctor:Run diagnostics'
         'setup:Interactive setup'
         'login:Authenticate'
-        'update:Update openclaw'
+        'update:Update colarcore'
     )
     _describe 'command' commands
 }
 
-_openclaw "$@"
+_colarcore "$@"
 '''.strip()
 
 
 def generate_fish_completion() -> str:
     return '''
-complete -c openclaw -f
-complete -c openclaw -n '__fish_use_subcommand' -a 'agent' -d 'Run an agent'
-complete -c openclaw -n '__fish_use_subcommand' -a 'send' -d 'Send a message'
-complete -c openclaw -n '__fish_use_subcommand' -a 'config' -d 'Manage configuration'
-complete -c openclaw -n '__fish_use_subcommand' -a 'gateway' -d 'Manage the gateway'
-complete -c openclaw -n '__fish_use_subcommand' -a 'channels' -d 'Manage channels'
-complete -c openclaw -n '__fish_use_subcommand' -a 'sessions' -d 'Manage sessions'
-complete -c openclaw -n '__fish_use_subcommand' -a 'status' -d 'Show status'
-complete -c openclaw -n '__fish_use_subcommand' -a 'doctor' -d 'Run diagnostics'
-complete -c openclaw -n '__fish_use_subcommand' -a 'update' -d 'Update openclaw'
+complete -c colarcore -f
+complete -c colarcore -n '__fish_use_subcommand' -a 'agent' -d 'Run an agent'
+complete -c colarcore -n '__fish_use_subcommand' -a 'send' -d 'Send a message'
+complete -c colarcore -n '__fish_use_subcommand' -a 'config' -d 'Manage configuration'
+complete -c colarcore -n '__fish_use_subcommand' -a 'gateway' -d 'Manage the gateway'
+complete -c colarcore -n '__fish_use_subcommand' -a 'channels' -d 'Manage channels'
+complete -c colarcore -n '__fish_use_subcommand' -a 'sessions' -d 'Manage sessions'
+complete -c colarcore -n '__fish_use_subcommand' -a 'status' -d 'Show status'
+complete -c colarcore -n '__fish_use_subcommand' -a 'doctor' -d 'Run diagnostics'
+complete -c colarcore -n '__fish_use_subcommand' -a 'update' -d 'Update colarcore'
 '''.strip()
 
 
@@ -337,21 +337,21 @@ class BrowserAction:
 
 async def secrets_list() -> list[str]:
     from ..secrets import SecretStore
-    store_dir = os.path.expanduser("~/.openclaw/secrets")
+    store_dir = os.path.expanduser("~/.colarcore/secrets")
     store = SecretStore(store_dir)
     return store.list_names()
 
 
 async def secrets_set(name: str, value: str) -> None:
     from ..secrets import SecretStore
-    store_dir = os.path.expanduser("~/.openclaw/secrets")
+    store_dir = os.path.expanduser("~/.colarcore/secrets")
     store = SecretStore(store_dir)
     store.set(name, value)
 
 
 async def secrets_delete(name: str) -> bool:
     from ..secrets import SecretStore
-    store_dir = os.path.expanduser("~/.openclaw/secrets")
+    store_dir = os.path.expanduser("~/.colarcore/secrets")
     store = SecretStore(store_dir)
     return store.delete(name)
 

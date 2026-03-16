@@ -1,5 +1,5 @@
 """Infra state migrations — ported from bk/src/infra/state-migrations.ts,
-state-migrations.fs.ts, openclaw-root.ts, tmp-openclaw-dir.ts,
+state-migrations.fs.ts, colarcore-root.ts, tmp-colarcore-dir.ts,
 os-summary.ts, supervisor-markers.ts, machine-name.ts, transport-ready.ts,
 warning-filter.ts, voicewake.ts, is-main.ts, wsl.ts.
 
@@ -23,12 +23,12 @@ from typing import Any, Callable
 logger = logging.getLogger("infra.state")
 
 
-# ─── openclaw-root.ts ───
+# ─── colarcore-root.ts ───
 
-def resolve_openclaw_root(env: dict[str, str] | None = None) -> str:
-    """Resolve the OpenClaw root directory."""
+def resolve_colarcore_root(env: dict[str, str] | None = None) -> str:
+    """Resolve the ColarCore root directory."""
     e = env or os.environ
-    explicit = e.get("OPENCLAW_ROOT", "").strip()
+    explicit = e.get("COLARCORE_ROOT", "").strip()
     if explicit and os.path.isdir(explicit):
         return os.path.abspath(explicit)
     # Walk up from current file to find package root
@@ -43,35 +43,35 @@ def resolve_openclaw_root(env: dict[str, str] | None = None) -> str:
     return os.getcwd()
 
 
-def resolve_openclaw_state_dir_v2(env: dict[str, str] | None = None) -> str:
+def resolve_colarcore_state_dir_v2(env: dict[str, str] | None = None) -> str:
     e = env or os.environ
-    explicit = e.get("OPENCLAW_STATE_DIR", "").strip()
+    explicit = e.get("COLARCORE_STATE_DIR", "").strip()
     if explicit:
         return os.path.abspath(explicit)
-    return os.path.join(str(Path.home()), ".openclaw")
+    return os.path.join(str(Path.home()), ".colarcore")
 
 
-# ─── tmp-openclaw-dir.ts ───
+# ─── tmp-colarcore-dir.ts ───
 
-def resolve_tmp_openclaw_dir(env: dict[str, str] | None = None) -> str:
-    """Resolve the temporary OpenClaw directory."""
+def resolve_tmp_colarcore_dir(env: dict[str, str] | None = None) -> str:
+    """Resolve the temporary ColarCore directory."""
     e = env or os.environ
-    explicit = e.get("OPENCLAW_TMP_DIR", "").strip()
+    explicit = e.get("COLARCORE_TMP_DIR", "").strip()
     if explicit:
         return os.path.abspath(explicit)
     import tempfile
-    return os.path.join(tempfile.gettempdir(), "openclaw")
+    return os.path.join(tempfile.gettempdir(), "colarcore")
 
 
-def ensure_tmp_openclaw_dir(env: dict[str, str] | None = None) -> str:
-    path = resolve_tmp_openclaw_dir(env)
+def ensure_tmp_colarcore_dir(env: dict[str, str] | None = None) -> str:
+    path = resolve_tmp_colarcore_dir(env)
     os.makedirs(path, exist_ok=True)
     return path
 
 
-def clean_tmp_openclaw_dir(max_age_hours: float = 24.0) -> int:
+def clean_tmp_colarcore_dir(max_age_hours: float = 24.0) -> int:
     """Clean old temp files. Returns count of removed items."""
-    tmp_dir = resolve_tmp_openclaw_dir()
+    tmp_dir = resolve_tmp_colarcore_dir()
     if not os.path.isdir(tmp_dir):
         return 0
     cutoff = time.time() - max_age_hours * 3600
@@ -233,14 +233,14 @@ def clear_warning_filters() -> None:
 @dataclass
 class VoiceWakeConfig:
     enabled: bool = False
-    wake_words: list[str] = field(default_factory=lambda: ["hey openclaw"])
-    command_template: str = 'openclaw agent --message "${text}" --thinking low'
+    wake_words: list[str] = field(default_factory=lambda: ["hey colarcore"])
+    command_template: str = 'colarcore agent --message "${text}" --thinking low'
     timeout_s: float = 30.0
 
 
 def resolve_voice_wake_config(env: dict[str, str] | None = None) -> VoiceWakeConfig:
     e = env or os.environ
-    enabled = (e.get("OPENCLAW_VOICE_WAKE", "").strip().lower() in ("true", "1", "yes"))
+    enabled = (e.get("COLARCORE_VOICE_WAKE", "").strip().lower() in ("true", "1", "yes"))
     return VoiceWakeConfig(enabled=enabled)
 
 
@@ -589,11 +589,11 @@ def auto_migrate_legacy_state_dir(
     _auto_migrate_state_dir_checked = True
 
     env = env or os.environ
-    if env.get("OPENCLAW_STATE_DIR", "").strip():
+    if env.get("COLARCORE_STATE_DIR", "").strip():
         return StateDirMigrationResult(skipped=True)
 
     home = str(Path.home())
-    target = target_dir or os.path.join(home, ".openclaw")
+    target = target_dir or os.path.join(home, ".colarcore")
     legacy_candidates = legacy_dirs or [
         os.path.join(home, ".clawd"),  # Legacy name
     ]
@@ -649,7 +649,7 @@ def auto_migrate_legacy_state_dir(
             warnings.append(f"Rolled back migration, failed to create symlink: {e}")
         except OSError as rollback_err:
             warnings.append(f"State dir moved but symlink failed: {e}; rollback failed: {rollback_err}")
-            warnings.append(f"Set OPENCLAW_STATE_DIR={target} to avoid split state")
+            warnings.append(f"Set COLARCORE_STATE_DIR={target} to avoid split state")
             changes.append(f"State dir: {legacy_dir} → {target}")
 
     return StateDirMigrationResult(

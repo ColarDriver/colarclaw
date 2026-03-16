@@ -116,7 +116,7 @@ def resolve_acp_client_spawn_env(
     if strip_keys:
         for key in strip_keys:
             env.pop(key, None)
-    env["OPENCLAW_SHELL"] = "acp-client"
+    env["COLARCORE_SHELL"] = "acp-client"
     return env
 
 

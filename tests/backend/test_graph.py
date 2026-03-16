@@ -40,8 +40,8 @@ def test_graph_memory_sessions_source() -> None:
     async def _run() -> None:
         import os
 
-        os.environ["OPENCLAW_MEMORY_SOURCES"] = "memory,sessions"
-        os.environ["OPENCLAW_MEMORY_SESSION_ENABLED"] = "true"
+        os.environ["COLARCORE_MEMORY_SOURCES"] = "memory,sessions"
+        os.environ["COLARCORE_MEMORY_SESSION_ENABLED"] = "true"
         container = build_container(load_settings())
         session = await container.session_repo.create_session("Session Memory")
 
@@ -64,8 +64,8 @@ def test_qmd_backend_falls_back_to_builtin_when_unavailable() -> None:
     async def _run() -> None:
         import os
 
-        os.environ["OPENCLAW_MEMORY_BACKEND"] = "qmd"
-        os.environ["OPENCLAW_MEMORY_QMD_COMMAND"] = "definitely-not-a-real-command"
+        os.environ["COLARCORE_MEMORY_BACKEND"] = "qmd"
+        os.environ["COLARCORE_MEMORY_QMD_COMMAND"] = "definitely-not-a-real-command"
 
         container = build_container(load_settings())
         session = await container.session_repo.create_session("QMD Fallback")

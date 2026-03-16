@@ -5,7 +5,7 @@ import asyncio
 import logging
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.pi_embedded_runner.compaction_timeout")
+log = logging.getLogger("colarcore.agents.pi_embedded_runner.compaction_timeout")
 
 DEFAULT_COMPACTION_TIMEOUT_MS = 60_000
 

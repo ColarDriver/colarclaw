@@ -12,9 +12,9 @@ from urllib.parse import urlparse
 from .constants import (
     DEFAULT_BROWSER_DEFAULT_PROFILE_NAME,
     DEFAULT_BROWSER_EVALUATE_ENABLED,
-    DEFAULT_OPENCLAW_BROWSER_COLOR,
-    DEFAULT_OPENCLAW_BROWSER_ENABLED,
-    DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
+    DEFAULT_COLARCORE_BROWSER_COLOR,
+    DEFAULT_COLARCORE_BROWSER_ENABLED,
+    DEFAULT_COLARCORE_BROWSER_PROFILE_NAME,
 )
 
 CDP_PORT_RANGE_START = 9222
@@ -32,12 +32,12 @@ class ResolvedBrowserConfig:
     cdp_is_loopback: bool = True
     remote_cdp_timeout_ms: int = 1500
     remote_cdp_handshake_timeout_ms: int = 3000
-    color: str = DEFAULT_OPENCLAW_BROWSER_COLOR
+    color: str = DEFAULT_COLARCORE_BROWSER_COLOR
     executable_path: str | None = None
     headless: bool = False
     no_sandbox: bool = False
     attach_only: bool = False
-    default_profile: str = DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME
+    default_profile: str = DEFAULT_COLARCORE_BROWSER_PROFILE_NAME
     profiles: dict[str, dict[str, Any]] = field(default_factory=dict)
     ssrf_policy: dict[str, Any] | None = None
     extra_args: list[str] = field(default_factory=list)
@@ -50,18 +50,18 @@ class ResolvedBrowserProfile:
     cdp_url: str = ""
     cdp_host: str = "127.0.0.1"
     cdp_is_loopback: bool = True
-    color: str = DEFAULT_OPENCLAW_BROWSER_COLOR
-    driver: str = "openclaw"
+    color: str = DEFAULT_COLARCORE_BROWSER_COLOR
+    driver: str = "colarcore"
     attach_only: bool = False
 
 
 def _normalize_hex_color(raw: str | None) -> str:
     value = (raw or "").strip()
     if not value:
-        return DEFAULT_OPENCLAW_BROWSER_COLOR
+        return DEFAULT_COLARCORE_BROWSER_COLOR
     n = value if value.startswith("#") else f"#{value}"
     if not re.match(r"^#[0-9a-fA-F]{6}$", n):
-        return DEFAULT_OPENCLAW_BROWSER_COLOR
+        return DEFAULT_COLARCORE_BROWSER_COLOR
     return n.upper()
 
 
@@ -101,8 +101,8 @@ def resolve_profile(resolved: ResolvedBrowserConfig, profile_name: str) -> Resol
     cdp_url = profile.get("cdpUrl", "") or profile.get("cdp_url", "")
     if not cdp_url and cdp_port:
         cdp_url = f"{resolved.cdp_protocol}://{resolved.cdp_host}:{cdp_port}"
-    color = profile.get("color", DEFAULT_OPENCLAW_BROWSER_COLOR)
-    driver = "extension" if profile.get("driver") == "extension" else "openclaw"
+    color = profile.get("color", DEFAULT_COLARCORE_BROWSER_COLOR)
+    driver = "extension" if profile.get("driver") == "extension" else "colarcore"
     cdp_host = resolved.cdp_host
     if cdp_url:
         try:

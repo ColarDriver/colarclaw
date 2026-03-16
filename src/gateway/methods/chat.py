@@ -179,7 +179,7 @@ def build_oversized_history_placeholder(message: Any = None) -> dict[str, Any]:
         "role": role,
         "timestamp": timestamp,
         "content": [{"type": "text", "text": CHAT_HISTORY_OVERSIZED_PLACEHOLDER}],
-        "__openclaw": {"truncated": True, "reason": "oversized"},
+        "__colarcore": {"truncated": True, "reason": "oversized"},
     }
 
 

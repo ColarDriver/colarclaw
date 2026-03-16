@@ -11,7 +11,7 @@ from typing import Any
 
 from .types import PluginConfigUiHint, PluginKind
 
-PLUGIN_MANIFEST_FILENAME = "openclaw.plugin.json"
+PLUGIN_MANIFEST_FILENAME = "colarcore.plugin.json"
 PLUGIN_MANIFEST_FILENAMES = [PLUGIN_MANIFEST_FILENAME]
 
 
@@ -102,7 +102,7 @@ class PluginPackageInstall:
 def get_package_manifest_metadata(manifest: dict[str, Any] | None) -> dict[str, Any] | None:
     if not manifest:
         return None
-    return manifest.get("openclaw")
+    return manifest.get("colarcore")
 
 
 def resolve_package_extension_entries(manifest: dict[str, Any] | None) -> dict[str, Any]:

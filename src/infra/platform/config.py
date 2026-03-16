@@ -21,10 +21,10 @@ logger = logging.getLogger("infra.config")
 
 def resolve_config_dir(env: dict[str, str] | None = None) -> str:
     e = env or os.environ
-    explicit = e.get("OPENCLAW_CONFIG_DIR", "").strip()
+    explicit = e.get("COLARCORE_CONFIG_DIR", "").strip()
     if explicit:
         return os.path.abspath(explicit)
-    return os.path.join(str(Path.home()), ".openclaw")
+    return os.path.join(str(Path.home()), ".colarcore")
 
 
 def load_config_file(path: str) -> dict[str, Any]:
@@ -95,7 +95,7 @@ class Profile:
 
 def resolve_profile_name(env: dict[str, str] | None = None) -> str:
     e = env or os.environ
-    return e.get("OPENCLAW_PROFILE", "").strip() or "default"
+    return e.get("COLARCORE_PROFILE", "").strip() or "default"
 
 
 def load_profile(name: str | None = None) -> Profile:
@@ -186,7 +186,7 @@ def find_contact_group(name: str, config_dir: str | None = None) -> ContactGroup
 def resolve_locale(env: dict[str, str] | None = None) -> str:
     """Resolve the user's locale."""
     e = env or os.environ
-    explicit = e.get("OPENCLAW_LOCALE", "").strip()
+    explicit = e.get("COLARCORE_LOCALE", "").strip()
     if explicit:
         return explicit
     for key in ("LC_ALL", "LC_MESSAGES", "LANG"):
@@ -219,7 +219,7 @@ def set_feature_flag(name: str, enabled: bool = True) -> None:
 def is_feature_enabled(name: str, default: bool = False) -> bool:
     """Check if a feature flag is enabled."""
     # Check env override first
-    env_key = f"OPENCLAW_FEATURE_{name.upper().replace('-', '_')}"
+    env_key = f"COLARCORE_FEATURE_{name.upper().replace('-', '_')}"
     env_val = os.environ.get(env_key, "").strip().lower()
     if env_val in ("true", "1", "yes"):
         return True

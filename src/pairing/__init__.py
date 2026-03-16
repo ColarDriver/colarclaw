@@ -43,7 +43,7 @@ class PairingManager:
     """Manages device pairing lifecycle."""
 
     def __init__(self, store_path: str = ""):
-        self._store_path = store_path or os.path.expanduser("~/.openclaw/pairing.json")
+        self._store_path = store_path or os.path.expanduser("~/.colarcore/pairing.json")
         self._pending: dict[str, PairingRequest] = {}
         self._devices: dict[str, PairedDevice] = {}
         self._load()

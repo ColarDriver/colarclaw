@@ -38,7 +38,7 @@ def get_max_chat_history_messages_bytes() -> int:
 
 def get_handshake_timeout_ms() -> int:
     import os
-    env_val = os.environ.get("OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS")
+    env_val = os.environ.get("COLARCORE_TEST_HANDSHAKE_TIMEOUT_MS")
     if env_val:
         try:
             parsed = int(env_val)

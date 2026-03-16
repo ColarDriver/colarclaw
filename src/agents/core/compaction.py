@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-logger = logging.getLogger("openclaw.agents.compaction")
+logger = logging.getLogger("colarcore.agents.compaction")
 
 # Heuristic: assume ~4 chars per token
 _CHARS_PER_TOKEN = 4

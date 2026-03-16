@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable
 
-log = logging.getLogger("openclaw.agents.subagent_announce_dispatch")
+log = logging.getLogger("colarcore.agents.subagent_announce_dispatch")
 
 
 async def dispatch_subagent_announcement(

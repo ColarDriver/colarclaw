@@ -9,20 +9,20 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.pi_embedded_runner.model")
+log = logging.getLogger("colarcore.agents.pi_embedded_runner.model")
 
 DEFAULT_CONTEXT_TOKENS = 128_000
 
 LOCAL_PROVIDER_HINTS: dict[str, str] = {
     "ollama": (
         "Ollama requires authentication to be registered as a provider. "
-        'Set OLLAMA_API_KEY="ollama-local" (any value works) or run "openclaw configure". '
-        "See: https://docs.openclaw.ai/providers/ollama"
+        'Set OLLAMA_API_KEY="ollama-local" (any value works) or run "colarcore configure". '
+        "See: https://docs.colarcore.ai/providers/ollama"
     ),
     "vllm": (
         "vLLM requires authentication to be registered as a provider. "
-        'Set VLLM_API_KEY (any value works) or run "openclaw configure". '
-        "See: https://docs.openclaw.ai/providers/vllm"
+        'Set VLLM_API_KEY (any value works) or run "colarcore configure". '
+        "See: https://docs.colarcore.ai/providers/vllm"
     ),
 }
 

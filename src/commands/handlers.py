@@ -126,7 +126,7 @@ class SendOptions:
 async def send_command(opts: SendOptions) -> int:
     """Send a message to a channel/contact."""
     if not opts.to:
-        logger.error("No recipient specified. Usage: openclaw send --to <recipient> 'message'")
+        logger.error("No recipient specified. Usage: colarcore send --to <recipient> 'message'")
         return 1
     if not opts.message:
         logger.error("No message provided")
@@ -137,7 +137,7 @@ async def send_command(opts: SendOptions) -> int:
 
     gateway = cfg.get("gateway", {}) or {}
     port = gateway.get("port", 18789)
-    token = os.environ.get("OPENCLAW_GATEWAY_TOKEN") or (
+    token = os.environ.get("COLARCORE_GATEWAY_TOKEN") or (
         (gateway.get("auth", {}) or {}).get("token")
     )
 
@@ -200,7 +200,7 @@ async def status_command(
     port = gateway.get("port", 18789)
     try:
         import aiohttp
-        token = os.environ.get("OPENCLAW_GATEWAY_TOKEN") or (
+        token = os.environ.get("COLARCORE_GATEWAY_TOKEN") or (
             (gateway.get("auth", {}) or {}).get("token")
         )
         headers = {}
@@ -398,7 +398,7 @@ class OnboardState:
 
 async def setup_command(*, non_interactive: bool = False) -> int:
     """Interactive setup wizard."""
-    print("OpenClaw Setup")
+    print("ColarCore Setup")
     print("=" * 40)
     print()
 
@@ -412,7 +412,7 @@ async def setup_command(*, non_interactive: bool = False) -> int:
     print("3. Configure gateway")
     print("4. Done!")
     print()
-    print("Run 'openclaw setup' for the full interactive wizard.")
+    print("Run 'colarcore setup' for the full interactive wizard.")
     return 0
 
 
@@ -421,7 +421,7 @@ async def setup_command(*, non_interactive: bool = False) -> int:
 async def auth_login(*, provider: str | None = None) -> int:
     """Authenticate with an AI provider."""
     print(f"Logging in{' to ' + provider if provider else ''}...")
-    print("Run 'openclaw login' for interactive authentication.")
+    print("Run 'colarcore login' for interactive authentication.")
     return 0
 
 

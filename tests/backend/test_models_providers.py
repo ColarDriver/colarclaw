@@ -149,7 +149,7 @@ def test_container_loads_provider_configs_from_config_file(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
-    config_path = tmp_path / "openclaw.json"
+    config_path = tmp_path / "colarcore.json"
     config_path.write_text(
         json.dumps(
             {
@@ -172,7 +172,7 @@ def test_container_loads_provider_configs_from_config_file(
         ),
         encoding="utf-8",
     )
-    monkeypatch.setenv("OPENCLAW_CONFIG", str(config_path))
+    monkeypatch.setenv("COLARCORE_CONFIG", str(config_path))
 
     container = build_container(load_settings())
     provider_configs = container.runtime_config.get("providerConfigs")

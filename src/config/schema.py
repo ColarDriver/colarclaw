@@ -2,7 +2,7 @@
 
 Ported from bk/src/config/schema.ts and bk/src/config/defaults.ts
 
-Defines the full OpenClaw config shape using Pydantic v2.
+Defines the full ColarCore config shape using Pydantic v2.
 """
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ class MemoryConfig(BaseModel):
     extra_paths: list[str] = Field(default_factory=list, alias="extraPaths")
     session_memory: bool = Field(default=False, alias="sessionMemory")
     provider: str = "local"
-    model: str = "openclaw-local-memory-v1"
+    model: str = "colarcore-local-memory-v1"
     store_path: str = Field(default="", alias="storePath")
     vector_enabled: bool = Field(default=True, alias="vectorEnabled")
     chunk_tokens: int = Field(default=400, alias="chunkTokens")
@@ -133,8 +133,8 @@ class SkillsConfig(BaseModel):
 # Top-level config
 # ---------------------------------------------------------------------------
 
-class OpenClawConfig(BaseModel):
-    """Full OpenClaw configuration (partial – main AI-relevant keys)."""
+class ColarCoreConfig(BaseModel):
+    """Full ColarCore configuration (partial – main AI-relevant keys)."""
     agents: AgentsConfig = Field(default_factory=AgentsConfig)
     memory: MemoryConfig = Field(default_factory=MemoryConfig)
     models: ModelsConfig = Field(default_factory=ModelsConfig)

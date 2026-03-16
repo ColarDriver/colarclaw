@@ -54,7 +54,7 @@ def discover_plugins(workspace_dir: str | None = None, extra_paths: list[str] | 
     return candidates
 
 
-def load_openclaw_plugins(
+def load_colarcore_plugins(
     config: Any = None,
     workspace_dir: str | None = None,
     logger: Any = None,

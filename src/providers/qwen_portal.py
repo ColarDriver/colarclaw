@@ -42,7 +42,7 @@ async def refresh_qwen_portal_credentials(
     if response.status_code == 400:
         raise RuntimeError(
             "Qwen OAuth refresh token expired or invalid. "
-            "Re-authenticate with `openclaw models auth login --provider qwen-portal`."
+            "Re-authenticate with `colarcore models auth login --provider qwen-portal`."
         )
     if response.status_code != 200:
         text = response.text

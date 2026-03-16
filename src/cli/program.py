@@ -22,7 +22,7 @@ from typing import Any, Callable, Awaitable
 
 logger = logging.getLogger(__name__)
 
-CLI_NAME = "openclaw"
+CLI_NAME = "colarcore"
 VERSION = "2025.1.0"
 
 BANNER = r"""
@@ -81,7 +81,7 @@ def build_program() -> argparse.ArgumentParser:
     """Build the CLI argument parser with all subcommands."""
     parser = argparse.ArgumentParser(
         prog=CLI_NAME,
-        description="OpenClaw — AI gateway and agent platform",
+        description="ColarCore — AI gateway and agent platform",
     )
     parser.add_argument("--verbose", "-V", action="store_true", help="Verbose output")
     parser.add_argument("--quiet", "-q", action="store_true", help="Quiet mode")
@@ -158,7 +158,7 @@ def build_program() -> argparse.ArgumentParser:
     setup.add_argument("--non-interactive", action="store_true")
 
     # Login
-    subs.add_parser("login", help="Log in to OpenClaw")
+    subs.add_parser("login", help="Log in to ColarCore")
 
     # Version
     subs.add_parser("version", help="Show version")

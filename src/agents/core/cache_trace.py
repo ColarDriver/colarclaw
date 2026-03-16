@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.cache_trace")
+log = logging.getLogger("colarcore.agents.cache_trace")
 
 CacheTraceStage = Literal[
     "session:loaded",
@@ -235,14 +235,14 @@ def resolve_cache_trace_config(
         env = dict(os.environ)
 
     diag_config = config.get("diagnostics", {}).get("cacheTrace", {}) if config else {}
-    env_enabled = env.get("OPENCLAW_CACHE_TRACE", "").lower() in ("1", "true", "yes")
+    env_enabled = env.get("COLARCORE_CACHE_TRACE", "").lower() in ("1", "true", "yes")
     enabled = env_enabled or diag_config.get("enabled", False)
 
-    file_override = diag_config.get("filePath", "").strip() or env.get("OPENCLAW_CACHE_TRACE_FILE", "").strip()
+    file_override = diag_config.get("filePath", "").strip() or env.get("COLARCORE_CACHE_TRACE_FILE", "").strip()
     if file_override:
         file_path = os.path.expanduser(file_override)
     else:
-        state_dir = env.get("OPENCLAW_STATE_DIR", os.path.expanduser("~/.openclaw"))
+        state_dir = env.get("COLARCORE_STATE_DIR", os.path.expanduser("~/.colarcore"))
         file_path = os.path.join(state_dir, "logs", "cache-trace.jsonl")
 
     def _env_bool(key: str) -> bool | None:
@@ -253,9 +253,9 @@ def resolve_cache_trace_config(
             return False
         return None
 
-    include_messages = _env_bool("OPENCLAW_CACHE_TRACE_MESSAGES") or diag_config.get("includeMessages", True)
-    include_prompt = _env_bool("OPENCLAW_CACHE_TRACE_PROMPT") or diag_config.get("includePrompt", True)
-    include_system = _env_bool("OPENCLAW_CACHE_TRACE_SYSTEM") or diag_config.get("includeSystem", True)
+    include_messages = _env_bool("COLARCORE_CACHE_TRACE_MESSAGES") or diag_config.get("includeMessages", True)
+    include_prompt = _env_bool("COLARCORE_CACHE_TRACE_PROMPT") or diag_config.get("includePrompt", True)
+    include_system = _env_bool("COLARCORE_CACHE_TRACE_SYSTEM") or diag_config.get("includeSystem", True)
 
     return CacheTraceConfig(
         enabled=enabled,

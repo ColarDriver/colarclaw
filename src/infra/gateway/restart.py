@@ -297,7 +297,7 @@ def _format_spawn_detail(result: subprocess.CompletedProcess[str] | None, error:
 
 # ─── platform restart triggers ───
 
-def trigger_openclaw_restart(profile: str | None = None) -> RestartAttempt:
+def trigger_colarcore_restart(profile: str | None = None) -> RestartAttempt:
     """Trigger a platform-appropriate gateway restart."""
     import sys as _sys
 
@@ -308,7 +308,7 @@ def trigger_openclaw_restart(profile: str | None = None) -> RestartAttempt:
     tried: list[str] = []
 
     if _sys.platform == "linux":
-        service_name = os.environ.get("OPENCLAW_SYSTEMD_UNIT") or f"openclaw-gateway{'@' + profile if profile else ''}.service"
+        service_name = os.environ.get("COLARCORE_SYSTEMD_UNIT") or f"colarcore-gateway{'@' + profile if profile else ''}.service"
         if not service_name.endswith(".service"):
             service_name += ".service"
 
@@ -335,7 +335,7 @@ def trigger_openclaw_restart(profile: str | None = None) -> RestartAttempt:
         return RestartAttempt(ok=False, method="systemd", detail="systemd restart failed", tried=tried)
 
     if _sys.platform == "darwin":
-        label = os.environ.get("OPENCLAW_LAUNCHD_LABEL") or f"ai.openclaw.gateway{'.' + profile if profile else ''}"
+        label = os.environ.get("COLARCORE_LAUNCHD_LABEL") or f"ai.colarcore.gateway{'.' + profile if profile else ''}"
         uid = os.getuid()
         domain = f"gui/{uid}"
         target = f"{domain}/{label}"

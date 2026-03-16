@@ -24,7 +24,7 @@ from agents.model_selection import (
     DEFAULT_MODEL,
 )
 
-logger = logging.getLogger("openclaw.agents.model_fallback")
+logger = logging.getLogger("colarcore.agents.model_fallback")
 
 T = TypeVar("T")
 

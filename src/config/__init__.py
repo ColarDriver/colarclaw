@@ -1,4 +1,4 @@
-"""OpenClaw configuration system.
+"""ColarCore configuration system.
 
 Ported from bk/src/config/ (~133 TS files, ~26k lines).
 
@@ -16,7 +16,7 @@ Organized into sub-modules:
 - security: Redaction, prototype key blocking
 """
 
-from .types import OpenClawConfig
+from .types import ColarCoreConfig
 from .paths import (
     resolve_config_path,
     resolve_state_dir,
@@ -42,7 +42,7 @@ from .validation import validate_config_object
 from .env import apply_config_env_vars, resolve_config_env_vars
 
 __all__ = [
-    "OpenClawConfig",
+    "ColarCoreConfig",
     "resolve_config_path",
     "resolve_state_dir",
     "resolve_default_config_candidates",

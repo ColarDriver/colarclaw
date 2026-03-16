@@ -37,7 +37,7 @@ def resolve_pairing_dir(base_dir: str | None = None) -> str:
     """Resolve the directory for pairing files."""
     if base_dir:
         return os.path.join(base_dir, "pairing")
-    return os.path.join(str(Path.home()), ".openclaw", "pairing")
+    return os.path.join(str(Path.home()), ".colarcore", "pairing")
 
 
 def write_pairing_file(path: str, data: dict[str, Any]) -> None:

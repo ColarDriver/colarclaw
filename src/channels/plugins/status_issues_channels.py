@@ -118,7 +118,7 @@ def check_whatsapp_status_issues(
             issues.append(create_runtime_issue(
                 "whatsapp", account_id,
                 "WhatsApp is not connected",
-                fix="Run 'openclaw whatsapp link' to scan QR code",
+                fix="Run 'colarcore whatsapp link' to scan QR code",
             ))
         if snapshot.get("lastDisconnect"):
             dc = snapshot["lastDisconnect"]
@@ -126,7 +126,7 @@ def check_whatsapp_status_issues(
                 issues.append(create_auth_issue(
                     "whatsapp", account_id,
                     "WhatsApp session logged out",
-                    fix="Re-link with 'openclaw whatsapp link'",
+                    fix="Re-link with 'colarcore whatsapp link'",
                 ))
 
     return issues

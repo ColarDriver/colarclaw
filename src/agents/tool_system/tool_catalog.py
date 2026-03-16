@@ -37,7 +37,7 @@ class _CoreToolDefinition:
     description: str
     section_id: str
     profiles: list[ToolProfileId]
-    include_in_openclaw_group: bool = False
+    include_in_colarcore_group: bool = False
 
 
 _CORE_TOOL_SECTION_ORDER = [
@@ -95,8 +95,8 @@ def _build_core_tool_group_map() -> dict[str, list[str]]:
     for tool in _CORE_TOOL_DEFINITIONS:
         group_id = f"group:{tool.section_id}"
         section_tool_map.setdefault(group_id, []).append(tool.id)
-    openclaw_tools = [t.id for t in _CORE_TOOL_DEFINITIONS if t.include_in_openclaw_group]
-    return {"group:openclaw": openclaw_tools, **section_tool_map}
+    colarcore_tools = [t.id for t in _CORE_TOOL_DEFINITIONS if t.include_in_colarcore_group]
+    return {"group:colarcore": colarcore_tools, **section_tool_map}
 
 
 CORE_TOOL_GROUPS = _build_core_tool_group_map()

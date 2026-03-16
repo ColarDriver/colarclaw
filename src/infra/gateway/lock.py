@@ -195,13 +195,13 @@ def _is_gateway_argv(args: list[str]) -> bool:
     if "gateway" not in normalized:
         return False
     entry_candidates = [
-        "dist/index.js", "dist/entry.js", "openclaw.mjs",
+        "dist/index.js", "dist/entry.js", "colarcore.mjs",
         "scripts/run-node.mjs", "src/index.ts",
     ]
     if any(a.endswith(e) for a in normalized for e in entry_candidates):
         return True
     exe = normalized[0] if normalized else ""
-    return exe.endswith("/openclaw") or exe == "openclaw"
+    return exe.endswith("/colarcore") or exe == "colarcore"
 
 
 def _resolve_owner_status(pid: int, payload: LockPayload | None, port: int | None = None) -> str:
@@ -248,8 +248,8 @@ def _resolve_lock_path(
     state_dir: str | None = None,
     config_path: str | None = None,
 ) -> tuple[str, str]:
-    s_dir = state_dir or os.path.join(str(Path.home()), ".openclaw", "state")
-    c_path = config_path or os.path.join(str(Path.home()), ".openclaw", "config.json")
+    s_dir = state_dir or os.path.join(str(Path.home()), ".colarcore", "state")
+    c_path = config_path or os.path.join(str(Path.home()), ".colarcore", "config.json")
     h = hashlib.sha256(c_path.encode()).hexdigest()[:8]
     lock_dir = os.path.join(s_dir, "locks")
     lock_path = os.path.join(lock_dir, f"gateway.{h}.lock")
@@ -265,7 +265,7 @@ async def acquire_gateway_lock(
     port: int | None = None,
 ) -> GatewayLockHandle | None:
     """Try to acquire the gateway lock. Returns None if skipped, raises on timeout."""
-    if os.environ.get("OPENCLAW_ALLOW_MULTI_GATEWAY") == "1":
+    if os.environ.get("COLARCORE_ALLOW_MULTI_GATEWAY") == "1":
         return None
 
     lock_path, c_path = _resolve_lock_path(state_dir, config_path)

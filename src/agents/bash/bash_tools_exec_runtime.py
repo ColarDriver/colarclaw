@@ -9,7 +9,7 @@ from .bash_tools_exec import BashExecRequest, BashExecResult, exec_bash
 from .bash_tools_exec_approval_request import evaluate_exec_approval
 from .bash_tools_exec_types import ExecApprovalPolicy, ExecApprovalRequest
 
-log = logging.getLogger("openclaw.agents.bash_tools_exec_runtime")
+log = logging.getLogger("colarcore.agents.bash_tools_exec_runtime")
 
 
 async def exec_bash_with_approval(

@@ -283,13 +283,13 @@ def stream_file_lines(path: str, callback: Callable[[str], None], encoding: str 
 
 # ─── temp-file.ts ───
 
-def create_temp_file(suffix: str = "", prefix: str = "openclaw-", dir: str | None = None) -> str:
+def create_temp_file(suffix: str = "", prefix: str = "colarcore-", dir: str | None = None) -> str:
     fd, path = tempfile.mkstemp(suffix=suffix, prefix=prefix, dir=dir)
     os.close(fd)
     return path
 
 
-def create_temp_dir(prefix: str = "openclaw-", dir: str | None = None) -> str:
+def create_temp_dir(prefix: str = "colarcore-", dir: str | None = None) -> str:
     return tempfile.mkdtemp(prefix=prefix, dir=dir)
 
 

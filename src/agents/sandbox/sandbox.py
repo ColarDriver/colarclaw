@@ -143,9 +143,9 @@ def resolve_sandboxed_media_source(media: str, sandbox_root: str) -> str:
 
 # ── Sandbox configuration types ───────────────────────────────────────────
 
-DEFAULT_SANDBOX_IMAGE = "openclaw/sandbox:latest"
-DEFAULT_SANDBOX_COMMON_IMAGE = "openclaw/sandbox-common:latest"
-DEFAULT_SANDBOX_BROWSER_IMAGE = "openclaw/sandbox-browser:latest"
+DEFAULT_SANDBOX_IMAGE = "colarcore/sandbox:latest"
+DEFAULT_SANDBOX_COMMON_IMAGE = "colarcore/sandbox-common:latest"
+DEFAULT_SANDBOX_BROWSER_IMAGE = "colarcore/sandbox-browser:latest"
 
 
 @dataclass

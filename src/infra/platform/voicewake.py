@@ -15,7 +15,7 @@ from typing import Any
 
 logger = logging.getLogger("infra.voicewake")
 
-DEFAULT_TRIGGERS = ["openclaw", "claude", "computer"]
+DEFAULT_TRIGGERS = ["colarcore", "claude", "computer"]
 
 
 @dataclass
@@ -25,7 +25,7 @@ class VoiceWakeConfig:
 
 
 def _resolve_voicewake_path(base_dir: str | None = None) -> str:
-    root = base_dir or os.path.join(str(Path.home()), ".openclaw")
+    root = base_dir or os.path.join(str(Path.home()), ".colarcore")
     return os.path.join(root, "settings", "voicewake.json")
 
 

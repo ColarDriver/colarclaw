@@ -197,7 +197,7 @@ def install_signal_handlers() -> None:
 
 # ─── startup-banner.ts ───
 
-def format_startup_banner(name: str = "OpenClaw", version: str = "0.0.0", port: int | None = None) -> str:
+def format_startup_banner(name: str = "ColarCore", version: str = "0.0.0", port: int | None = None) -> str:
     lines = [f"╔══════════════════════════════════╗"]
     lines.append(f"║  {name} v{version}".ljust(35) + "║")
     if port:

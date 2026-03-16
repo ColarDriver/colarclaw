@@ -17,7 +17,7 @@ from agents.session_tool_result_state import (
 from agents.tool_call_id import extract_tool_calls_from_assistant, extract_tool_result_id
 from ...session.transcript_repair import make_missing_tool_result, sanitize_tool_call_inputs
 
-log = logging.getLogger("openclaw.agents.session_tool_result_guard")
+log = logging.getLogger("colarcore.agents.session_tool_result_guard")
 
 MAX_TOOL_RESULT_SIZE = 100_000  # chars
 HARD_MAX_TOOL_RESULT_CHARS = MAX_TOOL_RESULT_SIZE

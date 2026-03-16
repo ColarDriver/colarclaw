@@ -17,7 +17,7 @@ logger = logging.getLogger("infra.diagnostics")
 
 # ─── diagnostic-flags.ts ───
 
-DIAGNOSTICS_ENV = "OPENCLAW_DIAGNOSTICS"
+DIAGNOSTICS_ENV = "COLARCORE_DIAGNOSTICS"
 
 
 def _normalize_flag(value: str) -> str:

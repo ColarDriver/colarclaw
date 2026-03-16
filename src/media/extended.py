@@ -106,7 +106,7 @@ async def download_media(url: str, dest_dir: str) -> MediaFileExtended | None:
 
 class MediaStager:
     def __init__(self, staging_dir: str = ""):
-        self._dir = staging_dir or tempfile.mkdtemp(prefix="openclaw-media-")
+        self._dir = staging_dir or tempfile.mkdtemp(prefix="colarcore-media-")
 
     def stage(self, source_path: str) -> str:
         os.makedirs(self._dir, exist_ok=True)

@@ -302,7 +302,7 @@ async def fetch_npm_tag_version(tag: str = "latest", timeout_s: float = 3.5) -> 
     try:
         from ..network.core import fetch_with_timeout
         result = await fetch_with_timeout(
-            f"https://registry.npmjs.org/openclaw/{tag}",
+            f"https://registry.npmjs.org/colarcore/{tag}",
             timeout_s=max(0.25, timeout_s),
         )
         if not result.get("ok"):

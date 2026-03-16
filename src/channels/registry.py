@@ -41,7 +41,7 @@ CHAT_CHANNEL_ORDER: list[str] = [
 
 CHANNEL_IDS = list(CHAT_CHANNEL_ORDER)
 
-WEBSITE_URL = "https://openclaw.ai"
+WEBSITE_URL = "https://colarcore.ai"
 
 # ─── channel metadata ───
 

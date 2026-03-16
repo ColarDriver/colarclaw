@@ -92,7 +92,7 @@ async def onboard_custom_interactive() -> OnboardCustomConfig | None:
 
     # Name
     try:
-        config.name = input("  Bot name [openclaw]: ").strip() or "openclaw"
+        config.name = input("  Bot name [colarcore]: ").strip() or "colarcore"
     except (EOFError, KeyboardInterrupt):
         return None
 
@@ -218,7 +218,7 @@ async def collect_auth_credentials(provider: str) -> CredentialResult:
             elif choice == "3":
                 result.method = "file"
                 from ..secrets import SecretStore
-                store = SecretStore(os.path.expanduser("~/.openclaw/secrets"))
+                store = SecretStore(os.path.expanduser("~/.colarcore/secrets"))
                 store.set(f"{provider}.apiKey", key)
                 result.stored = True
 
@@ -404,7 +404,7 @@ async def doctor_gateway_services(config: dict[str, Any]) -> list:
         checks.append(DoctorCheck(
             name="gateway_running", status="error",
             message="Gateway not running",
-            fix_command="openclaw gateway run",
+            fix_command="colarcore gateway run",
         ))
 
     # Check port availability
@@ -414,7 +414,7 @@ async def doctor_gateway_services(config: dict[str, Any]) -> list:
         checks.append(DoctorCheck(
             name="port_conflict", status="error",
             message=f"Port {port} in use by another process",
-            fix_command=f"openclaw gateway run --port {port + 1}",
+            fix_command=f"colarcore gateway run --port {port + 1}",
         ))
 
     return checks

@@ -10,7 +10,7 @@ from typing import Any
 from .subagent_registry_state import SubagentRegistryStateManager
 from .subagent_registry_types import SubagentEntry, SubagentStatus
 
-log = logging.getLogger("openclaw.agents.subagent_registry")
+log = logging.getLogger("colarcore.agents.subagent_registry")
 
 
 class SubagentRegistry:

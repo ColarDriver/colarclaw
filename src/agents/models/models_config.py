@@ -18,7 +18,7 @@ from agents.models_config_providers import (
     normalize_providers,
 )
 
-log = logging.getLogger("openclaw.agents.models_config")
+log = logging.getLogger("colarcore.agents.models_config")
 
 
 @dataclass

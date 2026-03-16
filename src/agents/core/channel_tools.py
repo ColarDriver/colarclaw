@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.channel_tools")
+log = logging.getLogger("colarcore.agents.channel_tools")
 
 ChannelMessageActionName = str
 _logged_list_action_errors: set[str] = set()

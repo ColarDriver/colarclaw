@@ -24,7 +24,7 @@ logger = logging.getLogger("infra.update_startup")
 
 GlobalInstallManager = str  # "npm" | "pnpm" | "bun"
 
-PRIMARY_PACKAGE_NAME = "openclaw"
+PRIMARY_PACKAGE_NAME = "colarcore"
 NPM_GLOBAL_INSTALL_QUIET_FLAGS = ["--no-fund", "--no-audit", "--loglevel=error"]
 
 
@@ -311,14 +311,14 @@ async def run_update_command(
     channel: str = "stable",
     timeout_ms: int = 45 * 60 * 1000,
 ) -> UpdateRunResult:
-    """Run openclaw update command."""
-    args = ["openclaw", "update", "--yes", "--channel", channel, "--json"]
+    """Run colarcore update command."""
+    args = ["colarcore", "update", "--yes", "--channel", channel, "--json"]
     try:
         proc = await asyncio.create_subprocess_exec(
             *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            env={**os.environ, "OPENCLAW_AUTO_UPDATE": "1"},
+            env={**os.environ, "COLARCORE_AUTO_UPDATE": "1"},
         )
         stdout, stderr = await asyncio.wait_for(
             proc.communicate(), timeout=timeout_ms / 1000.0,

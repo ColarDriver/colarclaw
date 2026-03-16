@@ -1,6 +1,6 @@
 """Agent runner — embedded agent execution engine.
 
-Ported from openclaw/src/agents/pi-embedded-runner/
+Ported from colarcore/src/agents/pi-embedded-runner/
 
 This package provides the core agent run loop:
 - AgentRunner: orchestrates memory → tools → prompt → LLM → store

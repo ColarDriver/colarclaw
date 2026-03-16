@@ -22,7 +22,7 @@ WS_LOG_STYLES = ("auto", "compact", "verbose", "optimized")
 
 def get_gateway_ws_log_style() -> str:
     """Get the configured WS log style."""
-    style = os.environ.get("OPENCLAW_WS_LOG_STYLE", "auto").strip().lower()
+    style = os.environ.get("COLARCORE_WS_LOG_STYLE", "auto").strip().lower()
     return style if style in WS_LOG_STYLES else "auto"
 
 
@@ -204,7 +204,7 @@ def log_ws(direction: str, kind: str, meta: dict[str, Any] | None = None) -> Non
         return
 
     style = get_gateway_ws_log_style()
-    verbose = os.environ.get("OPENCLAW_VERBOSE") == "1"
+    verbose = os.environ.get("COLARCORE_VERBOSE") == "1"
 
     if not verbose:
         _log_ws_optimized(direction, kind, meta)

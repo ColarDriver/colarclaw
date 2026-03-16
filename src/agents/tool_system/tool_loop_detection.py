@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.loop_detection")
+log = logging.getLogger("colarcore.agents.loop_detection")
 
 LoopDetectorKind = Literal["generic_repeat", "known_poll_no_progress", "global_circuit_breaker", "ping_pong"]
 

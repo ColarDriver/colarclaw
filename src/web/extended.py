@@ -31,7 +31,7 @@ class WASessionManager:
     """Manages WhatsApp sessions (persistence, reconnect)."""
 
     def __init__(self, sessions_dir: str = ""):
-        self._dir = sessions_dir or os.path.expanduser("~/.openclaw/sessions")
+        self._dir = sessions_dir or os.path.expanduser("~/.colarcore/sessions")
         self._sessions: dict[str, WASession] = {}
 
     def save(self, session: WASession) -> None:

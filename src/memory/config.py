@@ -134,7 +134,7 @@ def _default_store_path(settings: Settings) -> str:
     configured = settings.memory_store_path.strip()
     if configured:
         return configured
-    return str(Path(settings.workspace_dir) / '.openclaw-memory' / 'default.sqlite')
+    return str(Path(settings.workspace_dir) / '.colarcore-memory' / 'default.sqlite')
 
 
 def _normalize_sources(sources: tuple[str, ...], session_memory_enabled: bool) -> tuple[MemorySource, ...]:
@@ -175,7 +175,7 @@ def resolve_memory_search_config(settings: Settings, runtime_cfg: dict[str, obje
     extra_paths = _parse_csv(runtime_memory.get('extraPaths', settings.memory_extra_paths))
 
     provider = str(runtime_memory.get('provider', settings.memory_provider)).strip() or 'local'
-    model = str(runtime_memory.get('model', settings.memory_model)).strip() or 'openclaw-local-memory-v1'
+    model = str(runtime_memory.get('model', settings.memory_model)).strip() or 'colarcore-local-memory-v1'
     fallback = str(runtime_memory.get('fallback', settings.memory_fallback)).strip() or 'none'
 
     store = MemoryStoreConfig(

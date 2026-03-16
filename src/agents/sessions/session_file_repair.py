@@ -5,7 +5,7 @@ import logging
 import os
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.session_file_repair")
+log = logging.getLogger("colarcore.agents.session_file_repair")
 
 def repair_session_file(file_path: str) -> dict[str, Any]:
     """Repair a corrupted JSONL session file by removing invalid lines."""

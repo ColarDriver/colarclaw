@@ -128,7 +128,7 @@ async def download_discord_attachment(
 
 def build_onboarding_embed(
     *,
-    bot_name: str = "OpenClaw",
+    bot_name: str = "ColarCore",
     invite_url: str = "",
 ) -> dict[str, Any]:
     """Build the Discord onboarding embed."""
@@ -148,7 +148,7 @@ def build_onboarding_embed(
             f"• Reply in threads for focused conversations\n"
         ),
         "color": 0x7289DA,
-        "footer": {"text": "Powered by OpenClaw"},
+        "footer": {"text": "Powered by ColarCore"},
     }
 
 

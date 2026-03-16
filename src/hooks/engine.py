@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Awaitable, Callable, Literal, Union
 
-log = logging.getLogger("openclaw.hooks")
+log = logging.getLogger("colarcore.hooks")
 
 HookEventType = Literal["command", "session", "agent", "gateway", "message"]
 HookHandler = Callable[["HookEvent"], Union[Awaitable[None], None]]

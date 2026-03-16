@@ -16,7 +16,7 @@ from typing import Any
 from ..models.registry import ModelRegistry
 from .providers import resolve_provider
 
-logger = logging.getLogger("openclaw.llm.router")
+logger = logging.getLogger("colarcore.llm.router")
 
 
 @dataclass(frozen=True)

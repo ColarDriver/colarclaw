@@ -48,14 +48,14 @@ def find_chrome_executable(custom_path: str | None = None) -> ChromeExecutable |
     return None
 
 
-def get_chrome_user_data_dir(profile_name: str = "openclaw") -> str:
+def get_chrome_user_data_dir(profile_name: str = "colarcore") -> str:
     home = Path.home()
     system = platform.system().lower()
     if system == "darwin":
-        return str(home / "Library" / "Application Support" / "OpenClaw" / "browser" / profile_name)
+        return str(home / "Library" / "Application Support" / "ColarCore" / "browser" / profile_name)
     if system == "linux":
-        return str(home / ".config" / "openclaw" / "browser" / profile_name)
-    return str(home / "AppData" / "Local" / "OpenClaw" / "browser" / profile_name)
+        return str(home / ".config" / "colarcore" / "browser" / profile_name)
+    return str(home / "AppData" / "Local" / "ColarCore" / "browser" / profile_name)
 
 
 async def get_chrome_websocket_url(cdp_url: str, timeout_ms: int = 5000) -> str | None:
@@ -86,5 +86,5 @@ def build_chrome_launch_args(
 
 
 def decorate_chrome_profile(user_data_dir: str, color: str = "#FF4500") -> None:
-    """Apply OpenClaw branding to Chrome profile (placeholder)."""
+    """Apply ColarCore branding to Chrome profile (placeholder)."""
     pass

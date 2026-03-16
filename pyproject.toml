@@ -1,7 +1,7 @@
 [project]
 name = "colarclaw"
 version = "2025.3.12"
-description = "OpenClaw Python Backend — AI assistant gateway"
+description = "ColarCore Python Backend — AI assistant gateway"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.104.0",

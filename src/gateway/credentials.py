@@ -42,7 +42,7 @@ class GatewaySecretRefUnavailableError(Exception):
     def __init__(self, path: str) -> None:
         msg = (
             f"{path} is configured as a secret reference but is unavailable in this command path.\n"
-            "Fix: set OPENCLAW_GATEWAY_TOKEN/OPENCLAW_GATEWAY_PASSWORD, "
+            "Fix: set COLARCORE_GATEWAY_TOKEN/COLARCORE_GATEWAY_PASSWORD, "
             "pass explicit --token/--password,\n"
             "or run a gateway command path that resolves secret references before credential selection."
         )
@@ -80,7 +80,7 @@ def _contains_env_var_reference(value: str) -> bool:
 def trim_credential_to_undefined(value: Any) -> str | None:
     """Like trim_to_undefined but also rejects unresolved env var placeholders.
 
-    Prevents literal placeholder strings like `${OPENCLAW_GATEWAY_TOKEN}` from being
+    Prevents literal placeholder strings like `${COLARCORE_GATEWAY_TOKEN}` from being
     accepted as valid credentials when the referenced env var is missing.
     """
     trimmed = trim_to_undefined(value)
@@ -105,7 +105,7 @@ def read_gateway_token_env(
 ) -> str | None:
     """Read gateway token from environment variables."""
     _env = env if env is not None else os.environ
-    primary = trim_to_undefined(_env.get("OPENCLAW_GATEWAY_TOKEN"))
+    primary = trim_to_undefined(_env.get("COLARCORE_GATEWAY_TOKEN"))
     if primary:
         return primary
     if not include_legacy_env:
@@ -119,7 +119,7 @@ def read_gateway_password_env(
 ) -> str | None:
     """Read gateway password from environment variables."""
     _env = env if env is not None else os.environ
-    primary = trim_to_undefined(_env.get("OPENCLAW_GATEWAY_PASSWORD"))
+    primary = trim_to_undefined(_env.get("COLARCORE_GATEWAY_PASSWORD"))
     if primary:
         return primary
     if not include_legacy_env:
@@ -241,7 +241,7 @@ def resolve_gateway_credentials_from_config(
     remote_password = trim_to_undefined(remote_cfg.get("password"))
 
     _local_token_prec = local_token_precedence or (
-        "config-first" if _env.get("OPENCLAW_SERVICE_KIND") == "gateway" else "env-first"
+        "config-first" if _env.get("COLARCORE_SERVICE_KIND") == "gateway" else "env-first"
     )
     _local_password_prec = local_password_precedence or "env-first"
 

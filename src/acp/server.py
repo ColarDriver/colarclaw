@@ -56,7 +56,7 @@ def parse_server_args(args: list[str]) -> AcpServerOptions:
 
 
 def _print_help() -> None:
-    print("""Usage: openclaw acp [options]
+    print("""Usage: colarcore acp [options]
 
 Gateway-backed ACP server for IDE integration.
 

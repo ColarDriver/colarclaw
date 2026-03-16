@@ -16,7 +16,7 @@ class HookInstallSpec:
 
 
 @dataclass
-class OpenClawHookMetadata:
+class ColarCoreHookMetadata:
     events: list[str]
     always: bool = False
     hook_key: str | None = None
@@ -37,7 +37,7 @@ class HookInvocationPolicy:
 class Hook:
     name: str
     description: str
-    source: str  # "openclaw-bundled" | "openclaw-managed" | "openclaw-workspace" | "openclaw-plugin"
+    source: str  # "colarcore-bundled" | "colarcore-managed" | "colarcore-workspace" | "colarcore-plugin"
     file_path: str  # Path to HOOK.md
     base_dir: str  # Directory containing hook
     handler_path: str  # Path to handler module
@@ -48,7 +48,7 @@ class Hook:
 class HookEntry:
     hook: Hook
     frontmatter: dict[str, str]
-    metadata: OpenClawHookMetadata | None = None
+    metadata: ColarCoreHookMetadata | None = None
     invocation: HookInvocationPolicy | None = None
 
 

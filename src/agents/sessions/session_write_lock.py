@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.session_write_lock")
+log = logging.getLogger("colarcore.agents.session_write_lock")
 
 LOCK_FILE_SUFFIX = ".lock"
 STALE_LOCK_THRESHOLD_MS = 30_000

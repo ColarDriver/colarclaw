@@ -7,7 +7,7 @@ import os
 import logging
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.model_auth")
+log = logging.getLogger("colarcore.agents.model_auth")
 
 # Common environment variable mappings per provider
 PROVIDER_ENV_VARS: dict[str, list[str]] = {

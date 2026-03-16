@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-log = logging.getLogger("openclaw.agents.apply_patch")
+log = logging.getLogger("colarcore.agents.apply_patch")
 
 @dataclass
 class PatchHunk:

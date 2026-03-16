@@ -1,6 +1,6 @@
 """Agent runner — system prompt builder for embedded agent runs.
 
-Ported from openclaw/src/agents/pi-embedded-runner/system-prompt.ts
+Ported from colarcore/src/agents/pi-embedded-runner/system-prompt.ts
 
 Wraps the lower-level build_agent_system_prompt() with tool/skill
 resolution so callers don't have to assemble everything manually.
@@ -40,7 +40,7 @@ def build_embedded_system_prompt(
 ) -> str:
     """Build the full system prompt for an embedded agent run.
 
-    Mirrors openclaw's buildEmbeddedSystemPrompt() — resolves tool names
+    Mirrors colarcore's buildEmbeddedSystemPrompt() — resolves tool names
     and skill prompt, then delegates to the generic prompt builder.
     """
     return build_agent_system_prompt(

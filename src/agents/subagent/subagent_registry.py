@@ -10,7 +10,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-log = logging.getLogger("openclaw.agents.subagent_registry")
+log = logging.getLogger("colarcore.agents.subagent_registry")
 
 SubagentState = Literal["pending", "running", "completed", "failed", "cancelled"]
 

@@ -230,7 +230,7 @@ def calculate_intents(intent_names: list[str]) -> int:
 
 
 def get_default_intents() -> int:
-    """Get default intents for OpenClaw."""
+    """Get default intents for ColarCore."""
     return calculate_intents([
         "GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS",
         "DIRECT_MESSAGES", "MESSAGE_CONTENT",

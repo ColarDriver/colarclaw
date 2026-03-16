@@ -127,7 +127,7 @@ def is_git_dirty(cwd: str | None = None) -> bool:
 def resolve_canvas_host_url(config: Any = None, default: str = "http://localhost:3000") -> str:
     if isinstance(config, dict):
         return config.get("canvas_host_url") or config.get("canvasHostUrl") or default
-    return os.environ.get("OPENCLAW_CANVAS_HOST_URL", default)
+    return os.environ.get("COLARCORE_CANVAS_HOST_URL", default)
 
 
 # ─── control-ui-assets.ts ───

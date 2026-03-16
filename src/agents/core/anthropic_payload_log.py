@@ -7,16 +7,16 @@ import time
 from typing import Any
 from agents.payload_redaction import redact_image_data_for_diagnostics
 
-log = logging.getLogger("openclaw.agents.anthropic_payload_log")
+log = logging.getLogger("colarcore.agents.anthropic_payload_log")
 
 def log_anthropic_payload(
     payload: dict[str, Any],
     direction: str = "request",
     log_dir: str | None = None,
 ) -> None:
-    if not os.environ.get("OPENCLAW_ANTHROPIC_PAYLOAD_LOG"):
+    if not os.environ.get("COLARCORE_ANTHROPIC_PAYLOAD_LOG"):
         return
-    target_dir = log_dir or os.path.join(os.path.expanduser("~/.openclaw"), "logs", "anthropic")
+    target_dir = log_dir or os.path.join(os.path.expanduser("~/.colarcore"), "logs", "anthropic")
     os.makedirs(target_dir, exist_ok=True)
     redacted = redact_image_data_for_diagnostics(payload)
     filename = f"{direction}_{int(time.time() * 1000)}.json"

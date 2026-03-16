@@ -10,7 +10,7 @@ from typing import Any
 
 from .bash_process_registry import BashProcessRegistry, ProcessSession
 
-log = logging.getLogger("openclaw.agents.bash_tools_process")
+log = logging.getLogger("colarcore.agents.bash_tools_process")
 
 
 async def poll_process(

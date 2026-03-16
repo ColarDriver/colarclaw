@@ -53,7 +53,7 @@ class LocalHashEmbeddingProvider:
 
     @property
     def model(self) -> str:
-        return f"openclaw-local-hash-{self._dims}"
+        return f"colarcore-local-hash-{self._dims}"
 
     def embed(self, text: str) -> list[float]:
         buckets = [0.0 for _ in range(self._dims)]

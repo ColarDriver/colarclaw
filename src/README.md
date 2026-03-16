@@ -1,4 +1,4 @@
-# OpenClaw Python Backend (uv workflow)
+# ColarCore Python Backend (uv workflow)
 
 ## Setup with uv
 

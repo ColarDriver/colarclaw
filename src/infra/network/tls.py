@@ -57,7 +57,7 @@ async def _generate_self_signed_cert(cert_path: str, key_path: str) -> None:
         "-days", "3650", "-nodes",
         "-keyout", key_path,
         "-out", cert_path,
-        "-subj", "/CN=openclaw-gateway",
+        "-subj", "/CN=colarcore-gateway",
         stdout=asyncio.subprocess.DEVNULL,
         stderr=asyncio.subprocess.PIPE,
     )
@@ -106,7 +106,7 @@ async def load_gateway_tls_runtime(
     if not enabled:
         return GatewayTlsRuntime()
 
-    base_dir = os.path.join(config_dir or str(Path.home()) + "/.openclaw", "gateway", "tls")
+    base_dir = os.path.join(config_dir or str(Path.home()) + "/.colarcore", "gateway", "tls")
     cert = cert_path or os.path.join(base_dir, "gateway-cert.pem")
     key = key_path or os.path.join(base_dir, "gateway-key.pem")
 

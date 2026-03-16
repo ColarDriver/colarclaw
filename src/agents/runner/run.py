@@ -1,6 +1,6 @@
 """Agent runner — core orchestration for embedded agent runs.
 
-Ported from openclaw/src/agents/pi-embedded-runner/run.ts
+Ported from colarcore/src/agents/pi-embedded-runner/run.ts
 
 This is the main entry point for running agent turns. The runner
 handles the full cycle:
@@ -12,7 +12,7 @@ handles the full cycle:
 5. Persist conversation to memory store
 
 Unlike the original TS which uses a Graph/LangGraph abstraction,
-openclaw uses a direct runner pattern — this module follows that
+colarcore uses a direct runner pattern — this module follows that
 approach.
 """
 from __future__ import annotations
@@ -31,13 +31,13 @@ from ...memory.types import MemorySearchResult
 from ...skills.catalog import SkillCatalog
 from ...tools.middleware import ToolRuntime
 
-logger = logging.getLogger("openclaw.agents.runner")
+logger = logging.getLogger("colarcore.agents.runner")
 
 
 class AgentRunner:
     """Embedded agent runner: memory → tools → prompt → LLM → store.
 
-    Follows openclaw's pi-embedded-runner pattern rather than a
+    Follows colarcore's pi-embedded-runner pattern rather than a
     graph/workflow abstraction.
     """
 
@@ -138,7 +138,7 @@ class AgentRunner:
         ) if active_skills else ""
 
         # Collect tool names from registry for the system prompt
-        # This mirrors openclaw's: toolNames: params.tools.map((tool) => tool.name)
+        # This mirrors colarcore's: toolNames: params.tools.map((tool) => tool.name)
         tool_names = [t.name for t in self._tool_runtime.registry.list()]
 
         system_prompt = build_embedded_system_prompt(

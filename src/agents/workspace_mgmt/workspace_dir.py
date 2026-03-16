@@ -12,13 +12,13 @@ def resolve_workspace_dir(explicit_dir: str | None = None) -> str:
 
     Priority:
     1. Explicit directory passed as argument
-    2. OPENCLAW_WORKSPACE_DIR environment variable
+    2. COLARCORE_WORKSPACE_DIR environment variable
     3. Current working directory
     """
     if explicit_dir:
         return os.path.abspath(os.path.expanduser(explicit_dir))
 
-    env_dir = os.environ.get("OPENCLAW_WORKSPACE_DIR", "").strip()
+    env_dir = os.environ.get("COLARCORE_WORKSPACE_DIR", "").strip()
     if env_dir:
         return os.path.abspath(os.path.expanduser(env_dir))
 
@@ -41,7 +41,7 @@ def normalize_workspace_dir(dir_path: str) -> str:
 def find_workspace_root(start_dir: str | None = None) -> str | None:
     """Walk up from start_dir looking for workspace markers (.git, package.json, etc.)."""
     current = os.path.abspath(start_dir or os.getcwd())
-    markers = [".git", "package.json", "pyproject.toml", ".openclaw", "Cargo.toml", "go.mod"]
+    markers = [".git", "package.json", "pyproject.toml", ".colarcore", "Cargo.toml", "go.mod"]
 
     while True:
         for marker in markers:

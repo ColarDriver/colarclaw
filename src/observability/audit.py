@@ -6,7 +6,7 @@ from typing import Any
 
 class AuditLogger:
     def __init__(self) -> None:
-        self._logger = logging.getLogger("openclaw.audit")
+        self._logger = logging.getLogger("colarcore.audit")
 
     def tool_call(self, *, run_id: str, tool_name: str, args: dict[str, Any], result: str) -> None:
         self._logger.info(

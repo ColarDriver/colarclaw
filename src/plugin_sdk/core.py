@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Protocol
 
 
-class OpenClawPluginApi(Protocol):
+class ColarCorePluginApi(Protocol):
     """API surface exposed to plugins during registration."""
     id: str
     name: str
@@ -33,7 +33,7 @@ class OpenClawPluginApi(Protocol):
     def on(self, hook_name: str, handler: Any, opts: dict[str, Any] | None = None) -> None: ...
 
 
-class OpenClawPluginService(Protocol):
+class ColarCorePluginService(Protocol):
     id: str
     async def start(self, ctx: Any) -> None: ...
     async def stop(self, ctx: Any) -> None: ...

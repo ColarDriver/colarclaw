@@ -20,7 +20,7 @@ MEDIA_FILE_MODE = 0o644
 
 
 def _resolve_media_dir() -> str:
-    config_dir = os.environ.get("OPENCLAW_CONFIG_DIR", str(Path.home() / ".config" / "openclaw"))
+    config_dir = os.environ.get("COLARCORE_CONFIG_DIR", str(Path.home() / ".config" / "colarcore"))
     return os.path.join(config_dir, "media")
 
 

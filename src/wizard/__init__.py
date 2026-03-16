@@ -55,7 +55,7 @@ async def run_wizard(*, non_interactive: bool = False) -> WizardState:
         state.completed = True
         return state
 
-    print("\n🚀 Welcome to OpenClaw Setup!")
+    print("\n🚀 Welcome to ColarCore Setup!")
     print("=" * 40)
 
     # Step 1: Provider
@@ -94,7 +94,7 @@ async def run_wizard(*, non_interactive: bool = False) -> WizardState:
     # Step 4: Channels
     print("\nStep 4/6: Configure channels (optional)")
     print("  Available: Discord, Telegram, Slack, Signal, WhatsApp, LINE")
-    print("  You can configure channels later with 'openclaw channels add'")
+    print("  You can configure channels later with 'colarcore channels add'")
     state.step = 4
 
     # Step 5: Gateway
@@ -108,7 +108,7 @@ async def run_wizard(*, non_interactive: bool = False) -> WizardState:
     print(f"  Provider: {state.provider}")
     print(f"  Model: {state.model}")
     print(f"  Gateway: {state.gateway_mode}")
-    print("\nRun 'openclaw gateway run' to start.")
+    print("\nRun 'colarcore gateway run' to start.")
     state.completed = True
     state.step = 6
 

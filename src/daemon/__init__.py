@@ -128,7 +128,7 @@ class DaemonManager:
 
         # Start gateway process
         cmd = [
-            sys.executable, "-m", "openclaw.gateway",
+            sys.executable, "-m", "colarcore.gateway",
             "--port", str(port),
             "--bind", bind,
         ]
@@ -199,7 +199,7 @@ class DaemonManager:
 
 SYSTEMD_UNIT_TEMPLATE = """\
 [Unit]
-Description=OpenClaw Gateway
+Description=ColarCore Gateway
 After=network.target
 
 [Service]
@@ -225,7 +225,7 @@ def generate_systemd_unit(
 ) -> str:
     """Generate a systemd unit file."""
     return SYSTEMD_UNIT_TEMPLATE.format(
-        exec_start=exec_start or f"{sys.executable} -m openclaw.gateway",
+        exec_start=exec_start or f"{sys.executable} -m colarcore.gateway",
         user=user or os.environ.get("USER", "root"),
         work_dir=work_dir or os.path.expanduser("~"),
         home=home or os.path.expanduser("~"),
@@ -234,11 +234,11 @@ def generate_systemd_unit(
 
 def install_systemd_service(unit_content: str) -> bool:
     """Install a systemd service unit."""
-    unit_path = "/etc/systemd/system/openclaw-gateway.service"
+    unit_path = "/etc/systemd/system/colarcore-gateway.service"
     try:
         Path(unit_path).write_text(unit_content, encoding="utf-8")
         subprocess.run(["systemctl", "daemon-reload"], check=True)
-        subprocess.run(["systemctl", "enable", "openclaw-gateway"], check=True)
+        subprocess.run(["systemctl", "enable", "colarcore-gateway"], check=True)
         return True
     except Exception as e:
         logger.error(f"Failed to install systemd service: {e}")
@@ -254,12 +254,12 @@ LAUNCHD_PLIST_TEMPLATE = """\
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>ai.openclaw.gateway</string>
+  <string>ai.colarcore.gateway</string>
   <key>ProgramArguments</key>
   <array>
     <string>{python}</string>
     <string>-m</string>
-    <string>openclaw.gateway</string>
+    <string>colarcore.gateway</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
@@ -274,7 +274,7 @@ LAUNCHD_PLIST_TEMPLATE = """\
 """
 
 
-def generate_launchd_plist(*, log_path: str = "/tmp/openclaw-gateway.log") -> str:
+def generate_launchd_plist(*, log_path: str = "/tmp/colarcore-gateway.log") -> str:
     """Generate a macOS LaunchAgent plist."""
     return LAUNCHD_PLIST_TEMPLATE.format(
         python=sys.executable,

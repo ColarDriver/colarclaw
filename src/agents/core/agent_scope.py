@@ -9,7 +9,7 @@ import os
 from typing import Any
 from agents.agent_paths import resolve_state_dir
 
-log = logging.getLogger("openclaw.agents.agent_scope")
+log = logging.getLogger("colarcore.agents.agent_scope")
 DEFAULT_AGENT_ID = "default"
 
 def normalize_agent_id(raw: str | None) -> str:
@@ -87,7 +87,7 @@ def resolve_agent_workspace_dir(cfg: dict[str, Any], agent_id: str) -> str:
         fallback = cfg.get("agents", {}).get("defaults", {}).get("workspace", "").strip()
         if fallback:
             return os.path.expanduser(fallback)
-        return os.path.expanduser("~/.openclaw/workspace")
+        return os.path.expanduser("~/.colarcore/workspace")
     return os.path.join(resolve_state_dir(), f"workspace-{aid}")
 
 def resolve_agent_model_primary(cfg: dict[str, Any], agent_id: str) -> str | None:

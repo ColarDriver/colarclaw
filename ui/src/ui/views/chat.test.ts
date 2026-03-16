@@ -558,14 +558,16 @@ describe("chat view", () => {
     const container = document.createElement("div");
     render(renderChatSessionSelect(state), container);
 
-    const modelSelect = container.querySelector<HTMLSelectElement>(
+    // eslint-disable-next-line prefer-const -- using let to work around oxlint false positive (no-const-assign)
+    let patchSelect = container.querySelector<HTMLSelectElement>(
       'select[data-chat-model-select="true"]',
     );
-    expect(modelSelect).not.toBeNull();
-    expect(modelSelect?.value).toBe("");
+    expect(patchSelect).not.toBeNull();
+    expect(patchSelect?.value).toBe("");
 
-    modelSelect!.value = "gpt-5-mini";
-    modelSelect!.dispatchEvent(new Event("change", { bubbles: true }));
+    const patchEl = patchSelect!;
+    patchEl.value = "gpt-5-mini";
+    patchEl.dispatchEvent(new Event("change", { bubbles: true }));
     await flushTasks();
 
     expect(request).toHaveBeenCalledWith("sessions.patch", {
@@ -588,14 +590,15 @@ describe("chat view", () => {
     const container = document.createElement("div");
     render(renderChatSessionSelect(state), container);
 
-    const modelSelect = container.querySelector<HTMLSelectElement>(
+    const clearSelect = container.querySelector<HTMLSelectElement>(
       'select[data-chat-model-select="true"]',
     );
-    expect(modelSelect).not.toBeNull();
-    expect(modelSelect?.value).toBe("gpt-5-mini");
+    expect(clearSelect).not.toBeNull();
+    expect(clearSelect?.value).toBe("gpt-5-mini");
 
-    modelSelect!.value = "";
-    modelSelect!.dispatchEvent(new Event("change", { bubbles: true }));
+    const clearEl = clearSelect!;
+    clearEl.value = "";
+    clearEl.dispatchEvent(new Event("change", { bubbles: true }));
     await flushTasks();
 
     expect(request).toHaveBeenCalledWith("sessions.patch", {
@@ -613,11 +616,11 @@ describe("chat view", () => {
     const container = document.createElement("div");
     render(renderChatSessionSelect(state), container);
 
-    const modelSelect = container.querySelector<HTMLSelectElement>(
+    const disabledSelect = container.querySelector<HTMLSelectElement>(
       'select[data-chat-model-select="true"]',
     );
-    expect(modelSelect).not.toBeNull();
-    expect(modelSelect?.disabled).toBe(true);
+    expect(disabledSelect).not.toBeNull();
+    expect(disabledSelect?.disabled).toBe(true);
   });
 
   it("keeps the selected model visible when the active session is absent from sessions.list", async () => {
@@ -631,13 +634,14 @@ describe("chat view", () => {
     const container = document.createElement("div");
     render(renderChatSessionSelect(state), container);
 
-    const modelSelect = container.querySelector<HTMLSelectElement>(
+    const absentSelect = container.querySelector<HTMLSelectElement>(
       'select[data-chat-model-select="true"]',
     );
-    expect(modelSelect).not.toBeNull();
+    expect(absentSelect).not.toBeNull();
 
-    modelSelect!.value = "gpt-5-mini";
-    modelSelect!.dispatchEvent(new Event("change", { bubbles: true }));
+    const absentEl = absentSelect!;
+    absentEl.value = "gpt-5-mini";
+    absentEl.dispatchEvent(new Event("change", { bubbles: true }));
     await flushTasks();
     render(renderChatSessionSelect(state), container);
 

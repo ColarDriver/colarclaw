@@ -116,18 +116,15 @@ def load_settings() -> Settings:
         database_url=os.getenv("COLARCORE_DATABASE_URL", "sqlite+aiosqlite:///./colarcore.db"),
         redis_url=os.getenv("COLARCORE_REDIS_URL", "redis://localhost:6379/0"),
         vector_backend=os.getenv("COLARCORE_VECTOR_BACKEND", "memory"),
-        default_model=os.getenv("COLARCORE_DEFAULT_MODEL", "openai/echo-default"),
+        default_model=os.getenv("COLARCORE_DEFAULT_MODEL", ""),
         fallback_models=_split_csv(
-            os.getenv("COLARCORE_FALLBACK_MODELS", "openai/echo-fallback-1,openai/echo-fallback-2")
+            os.getenv("COLARCORE_FALLBACK_MODELS", "")
         ),
         tool_allowlist=_split_csv(
             os.getenv("COLARCORE_TOOL_ALLOWLIST", "clock.now,echo.text,memory.search,memory.get")
         ),
         model_registry=_split_csv(
-            os.getenv(
-                "COLARCORE_MODEL_REGISTRY",
-                "openai/echo-default=Echo Default,openai/echo-fallback-1=Echo Fallback 1,openai/echo-fallback-2=Echo Fallback 2",
-            )
+            os.getenv("COLARCORE_MODEL_REGISTRY", "")
         ),
         mcp_servers=_split_csv(
             os.getenv("COLARCORE_MCP_SERVERS", "qmd=mcporter daemon start")

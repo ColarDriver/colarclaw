@@ -19,15 +19,15 @@ router = APIRouter(prefix="/v1/settings", tags=["settings"])
 def _view(container) -> SettingsView:
     return SettingsView(
         defaultModel=container.runtime_config["defaultModel"],
-        fallbackModels=list(container.runtime_config["fallbackModels"]),
-        toolAllowlist=list(container.runtime_config["toolAllowlist"]),
+        fallbackModels=list(container.runtime_config.get("fallbackModels") or ()),
+        toolAllowlist=list(container.runtime_config.get("toolAllowlist") or ()),
         toolDenylist=list(container.runtime_config.get("toolDenylist", ())),
         maxToolCallsPerRun=int(container.runtime_config.get("maxToolCallsPerRun", 4)),
         maxSameToolRepeat=int(container.runtime_config.get("maxSameToolRepeat", 3)),
         maxToolCallsPerMinute=int(container.runtime_config.get("maxToolCallsPerMinute", 60)),
         modelRegistry=list(container.runtime_config.get("modelRegistry", ())),
         mcpServers=list(container.runtime_config.get("mcpServers", ())),
-        skillsEnabled=list(container.runtime_config.get("skillsEnabled", ())),
+        skillsEnabled=list(container.runtime_config.get("skillsEnabled") or ()),
     )
 
 
@@ -97,7 +97,7 @@ def _apply_memory_runtime(container) -> None:
             memory_retriever=container.memory_retriever,
             tool_runtime=container.tool_runtime,
             skill_catalog=container.skill_catalog,
-            skills_enabled=tuple(container.runtime_config.get("skillsEnabled", ())),
+            skills_enabled=tuple(container.runtime_config.get("skillsEnabled") or ()),
         )
 
     container.memory_manager.attach_session_records_provider(provider)
@@ -107,7 +107,7 @@ def _apply_memory_runtime(container) -> None:
 
 def _apply_skills_runtime(container) -> None:
     container.skill_catalog.reload()
-    skills_enabled = tuple(container.runtime_config.get("skillsEnabled", ()))
+    skills_enabled = tuple(container.runtime_config.get("skillsEnabled") or ())
     container.agent_runner.update_skills_enabled(skills_enabled)
 
 

@@ -19,7 +19,7 @@ from .observability.audit import AuditLogger
 from .observability.metrics import InMemoryMetrics
 from .session.repository import InMemorySessionRepository, SessionRepository
 from .session.runtime import SessionRuntimeState
-from .skills.catalog import SkillCatalog
+from .agents.skills.skills_status import SkillCatalog
 from .tools.middleware import ToolRuntime
 from .tools.registry import ToolRegistry, create_default_registry
 

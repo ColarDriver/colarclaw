@@ -286,6 +286,34 @@ def _get_agent_files_store(websocket: WebSocket) -> dict[str, dict[str, str]]:
     return next_store
 
 
+def _get_skill_entries_store(websocket: WebSocket) -> dict[str, dict[str, object]]:
+    """Per-skill config store: dict[skillKey -> {enabled: bool, apiKey: str, ...}].
+    Absence of a key means the skill uses its default state (enabled).
+    Mirrors openclaw's skills.entries[skillKey] config structure.
+    On first access, loads persisted entries from the config file.
+    """
+    store = getattr(websocket.app.state, "skill_entries_store", None)
+    if isinstance(store, dict):
+        return store
+    # Load persisted skill entries from config file
+    next_store: dict[str, dict[str, object]] = {}
+    try:
+        config_path = resolve_config_path()
+        loaded = read_config_file(config_path)
+        if isinstance(loaded, dict):
+            skills_section = loaded.get("skills")
+            if isinstance(skills_section, dict):
+                entries = skills_section.get("entries")
+                if isinstance(entries, dict):
+                    for key, val in entries.items():
+                        if isinstance(val, dict):
+                            next_store[str(key)] = dict(val)
+    except Exception:
+        pass
+    websocket.app.state.skill_entries_store = next_store
+    return next_store
+
+
 def _get_exec_approvals_store(websocket: WebSocket) -> dict[str, dict[str, object]]:
     store = getattr(websocket.app.state, "exec_approvals_store", None)
     if isinstance(store, dict):
@@ -304,14 +332,14 @@ def _get_control_ui_config_store(websocket: WebSocket) -> dict[str, object]:
     next_store: dict[str, object] = {
         "models": {
             "default": default_model,
-            "fallback": list(container.runtime_config.get("fallbackModels", ())),
+            "fallback": list(container.runtime_config.get("fallbackModels") or ()),
         },
         "tools": {
-            "allowlist": list(container.runtime_config.get("toolAllowlist", ())),
-            "denylist": list(container.runtime_config.get("toolDenylist", ())),
+            "allowlist": list(container.runtime_config.get("toolAllowlist") or ()),
+            "denylist": list(container.runtime_config.get("toolDenylist") or ()),
         },
         "skills": {
-            "enabled": list(container.runtime_config.get("skillsEnabled", ())),
+            "enabled": list(container.runtime_config.get("skillsEnabled") or ()),
         },
     }
     websocket.app.state.control_ui_config_store = next_store
@@ -966,31 +994,77 @@ def _build_tools_catalog(websocket: WebSocket) -> dict[str, object]:
 
 
 def _build_skills_status(websocket: WebSocket) -> dict[str, object]:
+    from ...agents.skills.skills_status import compute_missing_bins, compute_missing_env
+
     container = websocket.app.state.container
-    skills_filter = container.runtime_config.get("skillsEnabled")
-    # None = no filter (all enabled), tuple = explicit filter
-    is_filtered = skills_filter is not None
-    enabled_set = set(skills_filter) if is_filtered else None
+    # Per-skill enabled state: dict[skillKey, bool]. Absence means enabled (default).
+    skill_entries: dict[str, dict[str, object]] = _get_skill_entries_store(websocket)
     skills = []
     for skill in container.skill_catalog.list():
-        # If no filter, all are eligible; otherwise check membership
-        is_eligible = enabled_set is None or skill.key in enabled_set or skill.name in enabled_set
+        entry_cfg = skill_entries.get(skill.key, {})
+        # disabled only if explicitly set to False; absent or True = eligible
+        is_eligible = entry_cfg.get("enabled", True) is not False
+
+        # Compute missing bins and env for eligibility/status display
+        missing_bins = compute_missing_bins(skill.required_bins)
+        missing_env = compute_missing_env(skill.required_env)
+        # Check if env is satisfied by skill entry apiKey config
+        api_key_set = bool(entry_cfg.get("apiKey"))
+        if api_key_set and skill.primary_env and skill.primary_env in missing_env:
+            missing_env = [e for e in missing_env if e != skill.primary_env]
+
+        has_missing = bool(missing_bins) or bool(missing_env)
+        eligible = is_eligible and not has_missing
+        # Check OS eligibility
+        missing_os: list[str] = []
+        if skill.required_os:
+            import sys
+            current_platform = sys.platform
+            if current_platform not in skill.required_os:
+                missing_os = [current_platform]
+                eligible = False
+
+        # Build install options list for the UI
+        install_options: list[dict[str, object]] = []
+        if skill.install and missing_bins:
+            for opt in skill.install:
+                install_options.append({
+                    "id": opt.id,
+                    "kind": opt.kind,
+                    "label": opt.label,
+                    "bins": opt.bins,
+                })
+
         skills.append(
             {
                 "name": skill.name,
                 "description": skill.description,
-                "source": "local",
+                "source": skill.source or "local",
                 "filePath": skill.file_path,
                 "baseDir": "skills",
                 "skillKey": skill.key,
+                "bundled": skill.bundled,
+                "primaryEnv": skill.primary_env or None,
+                "emoji": skill.emoji or None,
+                "homepage": skill.homepage or None,
                 "always": False,
                 "disabled": not is_eligible,
                 "blockedByAllowlist": False,
-                "eligible": is_eligible,
-                "requirements": {"bins": [], "env": [], "config": [], "os": []},
-                "missing": {"bins": [], "env": [], "config": [], "os": []},
+                "eligible": eligible,
+                "requirements": {
+                    "bins": skill.required_bins,
+                    "env": skill.required_env,
+                    "config": skill.required_config,
+                    "os": skill.required_os,
+                },
+                "missing": {
+                    "bins": missing_bins,
+                    "env": missing_env,
+                    "config": [],
+                    "os": missing_os,
+                },
                 "configChecks": [],
-                "install": [],
+                "install": install_options,
             }
         )
     return {
@@ -1765,43 +1839,82 @@ async def _dispatch_method(
         return True, _build_skills_status(websocket)
 
     if method == "skills.update":
-        container = websocket.app.state.container
         skill_key = _as_text(params.get("skillKey"))
         if not skill_key:
             return True, {"ok": False, "error": "skillKey is required"}
 
         enabled = params.get("enabled")
-        config_store = _get_control_ui_config_store(websocket)
-        skills_config = config_store.get("skills", {})
-        if not isinstance(skills_config, dict):
-            skills_config = {}
-
-        # Update the enabled skills list based on the toggle
-        current_enabled = list(skills_config.get("enabled", []))
+        api_key_param = params.get("apiKey")
+        # Per-skill state store: dict[skillKey -> {"enabled": bool, "apiKey": str, ...}]
+        skill_entries = _get_skill_entries_store(websocket)
+        current = dict(skill_entries.get(skill_key, {}))
         if isinstance(enabled, bool):
-            if enabled and skill_key not in current_enabled:
-                current_enabled.append(skill_key)
-            elif not enabled and skill_key in current_enabled:
-                current_enabled.remove(skill_key)
+            current["enabled"] = enabled
+        if isinstance(api_key_param, str):
+            api_key_val = api_key_param.strip()
+            if api_key_val:
+                current["apiKey"] = api_key_val
+            else:
+                current.pop("apiKey", None)
 
-        skills_config["enabled"] = current_enabled
-        config_store["skills"] = skills_config
+            # Persist apiKey into the config file under skills.entries.<skillKey>.apiKey
+            # Mirrors openclaw's skills.entries[skillKey] config structure.
+            try:
+                config_path = resolve_config_path()
+                config_data: dict[str, Any] = {}
+                try:
+                    loaded = read_config_file(config_path)
+                    if isinstance(loaded, dict):
+                        config_data = loaded
+                except FileNotFoundError:
+                    pass
+                skills_section = config_data.setdefault("skills", {})
+                entries_section = skills_section.setdefault("entries", {})
+                entry = entries_section.setdefault(skill_key, {})
+                if api_key_val:
+                    entry["apiKey"] = api_key_val
+                else:
+                    entry.pop("apiKey", None)
+                    if not entry:
+                        entries_section.pop(skill_key, None)
+                write_config_file(config_path, config_data)
+            except Exception:
+                pass
 
-        # Sync to the graph runtime:
-        # If the enabled list is empty, set to None (= don't filter, use all)
-        # If explicitly set, use the filter tuple
-        if current_enabled:
-            new_filter: tuple[str, ...] | None = tuple(current_enabled)
+            # Also set the env var for immediate availability
+            container = websocket.app.state.container
+            # Find the primaryEnv for this skill to set as env var
+            for skill in container.skill_catalog.list():
+                if skill.key == skill_key and skill.primary_env:
+                    import os as _os
+                    if api_key_val:
+                        _os.environ[skill.primary_env] = api_key_val
+                    else:
+                        _os.environ.pop(skill.primary_env, None)
+                    break
+
+        skill_entries[skill_key] = current
+
+        # Build a disabled-set for the agent runner from all per-skill entries.
+        # Skills absent from the store are considered enabled (default).
+        disabled_keys = {k for k, v in skill_entries.items() if v.get("enabled") is False}
+        container = websocket.app.state.container
+        # Pass None = all enabled; pass a tuple of ENABLED keys when some are disabled.
+        all_keys = {s.key for s in container.skill_catalog.list()}
+        if disabled_keys:
+            allowed = tuple(k for k in all_keys if k not in disabled_keys)
+            container.agent_runner.update_skills_enabled(allowed)
+            container.runtime_config["skillsEnabled"] = allowed
         else:
-            new_filter = None
-        container.agent_runner.update_skills_enabled(new_filter)
-        container.runtime_config["skillsEnabled"] = new_filter
+            # No disabled skills → no filter
+            container.agent_runner.update_skills_enabled(None)
+            container.runtime_config["skillsEnabled"] = None
 
         _append_gateway_log(
             websocket,
-            f"skills.update: {skill_key} enabled={enabled}, active filter={current_enabled or '(all)'}",
+            f"skills.update: {skill_key} enabled={enabled}, disabled_keys={disabled_keys or '(none)'}",
         )
-        return True, {"ok": True, "skillKey": skill_key}
+        return True, {"ok": True, "skillKey": skill_key, "config": current}
 
     if method == "skills.install":
         container = websocket.app.state.container

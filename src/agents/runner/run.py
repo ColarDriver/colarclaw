@@ -28,7 +28,7 @@ from ...llm.router import LlmRouter
 from ...memory.retriever import MemoryRetriever
 from ...memory.store import MemoryStore
 from ...memory.types import MemorySearchResult
-from ...skills.catalog import SkillCatalog
+from ..skills.skills_status import SkillCatalog
 from ...tools.middleware import ToolRuntime
 
 logger = logging.getLogger("colarcore.agents.runner")

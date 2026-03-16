@@ -1,4 +1,4 @@
-"""Skill status & catalog — ported from openclaw/src/agents/skills-status.ts.
+"""Skill status & catalog for ColarCore — based on openclaw/src/agents/skills-status.ts.
 
 Provides ``SkillCatalog`` (discovers and caches skill entries from SKILL.md files)
 and helpers for computing missing requirements that the gateway status API needs.
@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from .frontmatter import parse_skill_frontmatter
-from .types import SkillEntry, SkillInstallOption
+from .types import SkillEntry, SkillInstallOption, SkillInstallSpec
 
 _SKILL_HEADING = re.compile(r"^#\s+(.+)$")
 _SKILL_DESC = re.compile(r"^>\s*(.+)$")
@@ -45,7 +45,7 @@ class SkillCatalog:
             description = (fm.description if fm else "") or _extract_description(body)
             homepage = (fm.homepage if fm else "")
 
-            # Metadata from the ``openclaw`` JSON key
+            # Metadata from the ``openclaw`` JSON key in SKILL.md frontmatter
             meta = fm.metadata if fm else None
             emoji = meta.emoji if meta else ""
             primary_env = meta.primary_env if meta else ""
@@ -58,6 +58,7 @@ class SkillCatalog:
             required_os = list(meta.os) if meta else []
 
             install_options: list[SkillInstallOption] = []
+            raw_install_specs: list[SkillInstallSpec] = []
             if meta and meta.install:
                 for spec in meta.install:
                     install_options.append(
@@ -68,6 +69,7 @@ class SkillCatalog:
                             bins=list(spec.bins),
                         )
                     )
+                    raw_install_specs.append(spec)
 
             if homepage and not homepage.strip():
                 homepage = meta.homepage if meta else ""
@@ -80,20 +82,21 @@ class SkillCatalog:
                 emoji=emoji,
                 homepage=homepage,
                 primary_env=primary_env,
-                source="openclaw-bundled",
+                source="colarcore-bundled",
                 bundled=True,
                 required_bins=required_bins,
                 required_env=required_env,
                 required_config=required_config,
                 required_os=required_os,
                 install=install_options,
+                install_specs=raw_install_specs,
             )
         self._entries = entries
 
     def list(self, skill_filter: tuple[str, ...] | None = None) -> list[SkillEntry]:
         """Return skill entries filtered by *skill_filter*.
 
-        Semantics (aligned with openclaw):
+        Semantics (aligned with colarcore):
         - ``None``      → no filter, return ALL skills
         - ``()``        → explicit disable, return empty
         - non-empty     → return only matching skills

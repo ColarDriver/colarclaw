@@ -101,7 +101,7 @@ function createHost() {
     agentsList: null,
     agentsError: null,
     debugHealth: null,
-    assistantName: "OpenClaw",
+    assistantName: "ColarCore",
     assistantAvatar: null,
     assistantAgentId: null,
     serverVersion: null,

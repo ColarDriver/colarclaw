@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from src.api.ws.chat_stream import _merge_provider_configs
+from src.gateway.server.ws_connection.message_handler import _merge_provider_configs
 from src.container import build_container
 from src.core.config import load_settings
 from src.llm.providers import (

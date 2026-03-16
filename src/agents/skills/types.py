@@ -1,4 +1,4 @@
-"""Skill types — ported from openclaw/src/agents/skills/types.ts."""
+"""Skill types for ColarCore — based on openclaw/src/agents/skills/types.ts."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,7 +21,7 @@ class SkillInstallSpec:
 
 
 @dataclass
-class OpenClawSkillMetadata:
+class ColarCoreSkillMetadata:
     """Metadata from the ``openclaw`` key inside SKILL.md frontmatter."""
 
     always: bool = False
@@ -45,7 +45,7 @@ class SkillFrontmatter:
     enabled: bool = True
     user_invocable: bool = False
     tags: list[str] = field(default_factory=list)
-    metadata: OpenClawSkillMetadata | None = None
+    metadata: ColarCoreSkillMetadata | None = None
 
 
 @dataclass
@@ -87,3 +87,4 @@ class SkillEntry:
     required_config: list[str] = field(default_factory=list)
     required_os: list[str] = field(default_factory=list)
     install: list[SkillInstallOption] = field(default_factory=list)
+    install_specs: list[SkillInstallSpec] = field(default_factory=list)

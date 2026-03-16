@@ -11,19 +11,19 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
-from ...config.io import read_config_file, write_config_file
-from ...config.paths import resolve_config_path
-from ...core.auth import AuthContext, _decode_token, resolve_websocket_auth
-from ...core.config import load_settings
-from ...llm.providers import (
+from ....config.io import read_config_file, write_config_file
+from ....config.paths import resolve_config_path
+from ....core.auth import AuthContext, _decode_token, resolve_websocket_auth
+from ....core.config import load_settings
+from ....llm.providers import (
     canonical_provider_id,
     list_custom_provider_protocols,
     list_provider_aliases,
     list_registered_provider_ids,
     provider_api_protocol,
 )
-from ...models.registry import parse_registered_model_entries
-from ...version import get_version
+from ....models.registry import parse_registered_model_entries
+from ....version import get_version
 
 router = APIRouter(tags=["ws"])
 
@@ -289,7 +289,7 @@ def _get_agent_files_store(websocket: WebSocket) -> dict[str, dict[str, str]]:
 def _get_skill_entries_store(websocket: WebSocket) -> dict[str, dict[str, object]]:
     """Per-skill config store: dict[skillKey -> {enabled: bool, apiKey: str, ...}].
     Absence of a key means the skill uses its default state (enabled).
-    Mirrors openclaw's skills.entries[skillKey] config structure.
+    Mirrors colarcore's skills.entries[skillKey] config structure.
     On first access, loads persisted entries from the config file.
     """
     store = getattr(websocket.app.state, "skill_entries_store", None)
@@ -994,7 +994,7 @@ def _build_tools_catalog(websocket: WebSocket) -> dict[str, object]:
 
 
 def _build_skills_status(websocket: WebSocket) -> dict[str, object]:
-    from ...agents.skills.skills_status import compute_missing_bins, compute_missing_env
+    from ....agents.skills.skills_status import compute_missing_bins, compute_missing_env
 
     container = websocket.app.state.container
     # Per-skill enabled state: dict[skillKey, bool]. Absence means enabled (default).
@@ -1858,7 +1858,7 @@ async def _dispatch_method(
                 current.pop("apiKey", None)
 
             # Persist apiKey into the config file under skills.entries.<skillKey>.apiKey
-            # Mirrors openclaw's skills.entries[skillKey] config structure.
+            # Mirrors colarcore's skills.entries[skillKey] config structure.
             try:
                 config_path = resolve_config_path()
                 config_data: dict[str, Any] = {}
@@ -1917,11 +1917,65 @@ async def _dispatch_method(
         return True, {"ok": True, "skillKey": skill_key, "config": current}
 
     if method == "skills.install":
+        from ....agents.skills.skills_install import install_skill as _install_skill
+
+        skill_name = str(params.get("name", "")).strip()
+        install_id = str(params.get("installId", "")).strip()
+        timeout_ms = _as_int(params.get("timeoutMs")) or 300_000
+
+        if not skill_name or not install_id:
+            return False, {"message": "invalid skills.install params: name and installId required"}
+
         container = websocket.app.state.container
-        # Reload skill catalog to pick up any new skills
+        # Find the skill entry to get its install specs
+        skill_entry = None
+        for s in container.skill_catalog.list():
+            if s.name == skill_name:
+                skill_entry = s
+                break
+
+        if skill_entry is None:
+            return False, {"message": f"Skill not found: {skill_name}"}
+
+        if not skill_entry.install_specs:
+            return False, {"message": f"No install specs for skill: {skill_name}"}
+
+        # Run the installation synchronously (in a thread to avoid blocking)
+        import asyncio
+        import concurrent.futures
+
+        def _do_install() -> dict[str, object]:
+            result = _install_skill(
+                skill_name=skill_name,
+                install_id=install_id,
+                install_specs=skill_entry.install_specs,
+                timeout_ms=timeout_ms,
+            )
+            return {
+                "ok": result.ok,
+                "message": result.message,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "code": result.code,
+                "warnings": result.warnings,
+            }
+
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            install_result = await loop.run_in_executor(pool, _do_install)
+
+        # Reload skill catalog to pick up changes
         container.skill_catalog.reload()
-        _append_gateway_log(websocket, "skills.install: reloaded skill catalog")
-        return True, _build_skills_status(websocket)
+        _append_gateway_log(
+            websocket,
+            f"skills.install: {skill_name} installId={install_id} ok={install_result.get('ok')}"
+            + (f" error={install_result.get('message')}" if not install_result.get("ok") else ""),
+        )
+
+        if not install_result.get("ok"):
+            return False, install_result
+
+        return True, install_result
 
     if method == "tools.catalog":
         return True, _build_tools_catalog(websocket)

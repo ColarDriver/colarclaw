@@ -1,4 +1,4 @@
-"""Skill frontmatter — ported from openclaw/src/agents/skills/frontmatter.ts.
+"""Skill frontmatter parser for ColarCore — based on openclaw/src/agents/skills/frontmatter.ts.
 
 Parses YAML frontmatter from SKILL.md files, including the JSON metadata
 block that contains the ``openclaw`` key with emoji, requires, install, etc.
@@ -9,7 +9,7 @@ import json
 import re
 from typing import Any
 
-from .types import OpenClawSkillMetadata, SkillFrontmatter, SkillInstallSpec
+from .types import ColarCoreSkillMetadata, SkillFrontmatter, SkillInstallSpec
 
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
@@ -65,7 +65,7 @@ def parse_skill_frontmatter(content: str) -> tuple[SkillFrontmatter | None, str]
     return fm, body
 
 
-def _parse_metadata_block(fm_text: str) -> OpenClawSkillMetadata | None:
+def _parse_metadata_block(fm_text: str) -> ColarCoreSkillMetadata | None:
     """Extract and parse the JSON metadata block from frontmatter text."""
     # Multi-line metadata: metadata:\n  { ... }
     metadata_match = re.search(r"metadata:\s*\n?\s*(\{.*)", fm_text, re.DOTALL)
@@ -108,8 +108,8 @@ def _as_str_list(value: Any) -> list[str]:
     return []
 
 
-def _build_metadata(parsed: dict[str, Any]) -> OpenClawSkillMetadata:
-    """Build an ``OpenClawSkillMetadata`` from a parsed JSON metadata dict."""
+def _build_metadata(parsed: dict[str, Any]) -> ColarCoreSkillMetadata:
+    """Build a ``ColarCoreSkillMetadata`` from a parsed JSON metadata dict."""
     oc: dict[str, Any] = {}
     if isinstance(parsed, dict):
         oc = parsed.get("openclaw", {})
@@ -160,7 +160,7 @@ def _build_metadata(parsed: dict[str, Any]) -> OpenClawSkillMetadata:
                 )
             )
 
-    return OpenClawSkillMetadata(
+    return ColarCoreSkillMetadata(
         always=bool(oc.get("always", False)),
         skill_key=str(oc.get("skillKey", "")),
         primary_env=str(oc.get("primaryEnv", "")),

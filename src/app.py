@@ -3,14 +3,14 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.rest.chat import router as chat_router
-from .api.rest.health import router as health_router
-from .api.rest.runtime_config import router as runtime_router
-from .api.rest.sessions import router as sessions_router
-from .api.rest.settings import router as settings_router
-from .api.rest.tools import router as tools_router
-from .api.rest.ui_contracts import router as ui_contracts_router
-from .api.ws.chat_stream import router as ws_router
+from .gateway.server.chat import router as chat_router
+from .gateway.server.health import router as health_router
+from .gateway.server.runtime_config import router as runtime_router
+from .gateway.server.sessions import router as sessions_router
+from .gateway.server.settings import router as settings_router
+from .gateway.server.tools import router as tools_router
+from .gateway.server.ui_contracts import router as ui_contracts_router
+from .gateway.server.ws_connection.message_handler import router as ws_router
 from .container import build_container
 from .core.config import load_settings
 from .core.logging import configure_logging

@@ -120,6 +120,102 @@ _PROVIDER_LABELS: dict[str, str] = {
     "zai": "Z.ai",
 }
 
+# Known models per builtin provider. When a user configures a provider API key
+# via Save & Apply, these models are auto-registered into the model registry
+# so the user doesn't have to manually add them.
+_BUILTIN_PROVIDER_KNOWN_MODELS: dict[str, list[tuple[str, str]]] = {
+    # (model_id, display_name) pairs; first entry is the default for the provider
+    "anthropic": [
+        ("claude-sonnet-4-5", "Claude Sonnet 4.5"),
+        ("claude-opus-4-5", "Claude Opus 4.5"),
+    ],
+    "openai": [
+        ("gpt-5.4", "GPT-5.4"),
+        ("gpt-5-mini", "GPT-5 Mini"),
+    ],
+    "google": [
+        ("gemini-2.5-flash", "Gemini 2.5 Flash"),
+        ("gemini-2.5-pro", "Gemini 2.5 Pro"),
+    ],
+    "kimi-coding": [
+        ("kimi-k2.5", "Kimi K2.5"),
+        ("kimi-k2-0905-preview", "Kimi K2"),
+        ("kimi-k2-turbo-preview", "Kimi K2 Turbo"),
+        ("kimi-k2-thinking", "Kimi K2 Thinking"),
+        ("kimi-k2-thinking-turbo", "Kimi K2 Thinking Turbo"),
+    ],
+    "groq": [
+        ("llama-4-scout-17b-16e-instruct", "Llama 4 Scout"),
+    ],
+    "qwen-portal": [
+        ("qwen3-coder-plus", "Qwen3 Coder Plus"),
+        ("qwen3-235b-a22b", "Qwen3 235B"),
+    ],
+}
+
+
+def _auto_register_provider_models(state: dict[str, Any]) -> None:
+    """Auto-register known models for providers that have API keys configured.
+
+    When a user saves a provider config with an API key, this function
+    ensures the provider's known models are added to the model registry
+    and a default model is set if none exists.
+    """
+    provider_configs = state.get("providerConfigs")
+    if not isinstance(provider_configs, dict):
+        return
+
+    registry = _normalize_string_list(state.get("modelRegistry"))
+    registry_keys: set[str] = set()
+    for entry in registry:
+        key = entry.strip()
+        if "=" in key:
+            key = key.split("=", 1)[0].strip()
+        if key:
+            registry_keys.add(key)
+
+    added_any = False
+    first_provider_default: str = ""
+
+    for provider_id, entry in provider_configs.items():
+        if not isinstance(entry, dict):
+            continue
+        api_key = _as_text(entry.get("apiKey"))
+        if not api_key:
+            continue
+
+        known_models = _BUILTIN_PROVIDER_KNOWN_MODELS.get(provider_id)
+        if not known_models:
+            continue
+
+        # Check if any model from this provider is already in the registry
+        provider_has_models = any(
+            key.startswith(f"{provider_id}/") for key in registry_keys
+        )
+        if provider_has_models:
+            continue
+
+        # Auto-register known models for this provider
+        for model_id, display_name in known_models:
+            model_key = f"{provider_id}/{model_id}"
+            if model_key not in registry_keys:
+                registry.append(f"{model_key}={display_name}")
+                registry_keys.add(model_key)
+                added_any = True
+
+        # Track the first provider's default model for auto-setting defaultModel
+        if not first_provider_default and known_models:
+            first_provider_default = f"{provider_id}/{known_models[0][0]}"
+
+    if added_any:
+        state["modelRegistry"] = registry
+
+    # Auto-set default model if none is configured
+    default_model = _as_text(state.get("defaultModel"))
+    if not default_model and first_provider_default:
+        state["defaultModel"] = first_provider_default
+
+
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
@@ -877,6 +973,8 @@ def _load_models_provider_state(container) -> tuple[str, dict[str, Any], dict[st
         "modelRegistry": model_registry,
         "providerConfigs": provider_configs,
     }
+    # Auto-register known models for providers with API keys configured
+    _auto_register_provider_models(state)
     return config_path, config_data, state
 
 
@@ -1401,6 +1499,9 @@ async def _dispatch_method(
         except ValueError as err:
             return False, {"code": "INVALID_REQUEST", "message": str(err)}
         state["providerConfigs"] = merged_provider_configs
+
+        # Auto-register known models for providers with API keys configured
+        _auto_register_provider_models(state)
 
         _persist_models_provider_state(
             config_path=config_path,
